@@ -1,5 +1,4 @@
 import { createServerClient } from '../../../lib/supabase'
-import { buildWhatsAppMessage, ADMIN_WA } from '../../../lib/utils'
 import { NextResponse } from 'next/server'
 
 export async function POST(req) {
@@ -7,16 +6,18 @@ export async function POST(req) {
     const body = await req.json()
     const { items, customer, paymentMethod, receiptUrl, productTotal, deliveryCharge, grandTotal, totalWeight } = body
 
+    // 1. Basic Validation
     if (!items?.length || !customer?.name || !customer?.phone1) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     const supabase = createServerClient()
 
-    // Generate order number
+    // 2. Generate order number (RPC call or fallback)
     const { data: numData } = await supabase.rpc('generate_order_number')
     const orderNumber = numData || `TC-${Date.now()}`
 
+    // 3. Prepare Payload (Match your Supabase column names exactly!)
     const orderPayload = {
       order_number: orderNumber,
       customer_name: customer.name,
@@ -35,6 +36,7 @@ export async function POST(req) {
       status: 'pending',
     }
 
+    // 4. Insert into Database
     const { data: order, error } = await supabase
       .from('orders')
       .insert(orderPayload)
@@ -42,22 +44,19 @@ export async function POST(req) {
       .single()
 
     if (error) {
-      console.error('Order insert error:', error)
-      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
+      console.error('Database Error:', error.message)
+      return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    // Build WhatsApp notification URL for admin
-    const waMsg = buildWhatsAppMessage({ ...orderPayload, created_at: new Date().toISOString() })
-    const adminWaUrl = `https://wa.me/${ADMIN_WA}?text=${waMsg}`
-
+    // 5. Return success (Frontend will handle the notification next)
     return NextResponse.json({
       success: true,
       orderId: order.id,
       orderNumber: order.order_number,
-      adminWaUrl,
     })
+
   } catch (err) {
-    console.error('Order API error:', err)
+    console.error('API Crash:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

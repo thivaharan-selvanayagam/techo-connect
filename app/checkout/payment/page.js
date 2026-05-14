@@ -55,19 +55,29 @@ export default function PaymentPage() {
   }
 
   const uploadReceipt = async (orderNumber) => {
-    if (!receipt) return null
-    try {
-      const ext = receipt.name.split('.').pop()
-      const path = `${orderNumber}.${ext}`
-      const { error } = await supabase.storage.from('receipts').upload(path, receipt, { upsert: true })
-      if (error) throw error
-      const { data } = supabase.storage.from('receipts').getPublicUrl(path)
-      return data.publicUrl
-    } catch (err) {
-      console.error('Receipt upload failed:', err)
-      return null
-    }
+  if (!receipt) return null
+  try {
+    const ext = receipt.name.split('.').pop()
+    
+    // GOOD: Just the filename
+    const path = `${orderNumber}.${ext}` 
+    
+    // BAD (Avoid this): 
+    // const path = `receipts/${orderNumber}.${ext}` 
+
+    const { data, error } = await supabase.storage
+      .from('receipts') // This already tells Supabase which bucket to use
+      .upload(path, receipt, { upsert: true })
+
+    if (error) throw error
+    
+    const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path)
+    return urlData.publicUrl
+  } catch (err) {
+    console.error('Upload error:', err)
+    return null
   }
+}
 
   const handlePlaceOrder = async () => {
     if (!method) { toast.error('Please select a payment method.'); return }
@@ -113,18 +123,26 @@ export default function PaymentPage() {
         await supabase.from('orders').update({ receipt_url: receiptUrl }).eq('id', orderId)
       }
 
-      // Save to checkout store
-      setPaymentMethod(method)
-      setReceiptUrl(receiptUrl)
-      setOrder(orderId, orderNumber)
+      await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order: {
+          order_number: orderNumber,
+          customer_name: customer.name,
+          customer_phone1: customer.phone1,
+          customer_district: customer.district,
+          customer_address: customer.address,
+          items: items,
+          grand_total: grandTotal,
+          payment_method: method
+        },
+        receiptUrl: receiptUrl // This will now show up in Discord!
+      })
+    });
 
-      // Open WhatsApp with admin notification
-      if (adminWaUrl) {
-        window.open(adminWaUrl, '_blank')
-      }
-
-      clearCart()
-      router.push('/checkout/confirm')
+    // 5. Done!
+    router.push('/checkout/confirm');
 
     } catch (err) {
       console.error(err)
@@ -249,6 +267,7 @@ export default function PaymentPage() {
                     <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" style={{ display: 'none' }} onChange={handleFileChange} />
                   </div>
                 )}
+
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem' }}>
