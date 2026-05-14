@@ -1,27 +1,61 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase' 
 import { formatLKR } from '../../../../lib/utils'
 import Link from 'next/link'
 
-export default function InvoicePage({ params }) {
+export default function InvoicePage() {
+  const params = useParams()
+  const orderId = params.id
+
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
+  // --- FIXED: This line was missing! ---
+  const [errorMsg, setErrorMsg] = useState(null) 
 
   useEffect(() => {
     async function fetchOrder() {
-      // We use the order_number from the URL to get data from Supabase
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('order_number', params.id)
-        .single()
-      
-      if (data) setOrder(data)
-      setLoading(false)
+      if (!orderId) return
+
+      try {
+        // 1. Try searching specifically by order_number (Text column)
+        // This prevents the UUID type mismatch error (22P02)
+        let { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('order_number', orderId)
+          .single()
+        
+        // 2. Fallback: If not found, only try searching by ID if it's NOT a "TC-" number
+        // (Valid UUIDs don't start with "TC-")
+        if (!data && !orderId.startsWith('TC-')) {
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', orderId)
+            .single()
+          
+          data = fallbackData
+          if (fallbackError) console.error("ID Search Error:", fallbackError.message)
+        }
+
+        if (data) {
+          setOrder(data)
+        } else {
+          setErrorMsg("No order found with this reference.")
+        }
+
+      } catch (err) {
+        console.error("Fetch Logic Error:", err)
+        setErrorMsg("Something went wrong while fetching the order.")
+      } finally {
+        setLoading(false)
+      }
     }
+
     fetchOrder()
-  }, [params.id])
+  }, [orderId])
 
   const handleShare = async () => {
     const shareData = {
@@ -39,11 +73,18 @@ export default function InvoicePage({ params }) {
   }
 
   if (loading) return <div style={{ padding: '100px', textAlign: 'center', color: 'var(--muted)' }}>Generating professional invoice...</div>
-  if (!order) return <div style={{ padding: '100px', textAlign: 'center' }}>Order not found. <Link href="/products">Go back</Link></div>
+  
+  if (!order) return (
+    <div style={{ padding: '100px', textAlign: 'center' }}>
+      <h2 style={{ marginBottom: '10px' }}>Order not found.</h2>
+      <p style={{ color: 'var(--muted)', marginBottom: '20px' }}>Ref: <strong>{orderId}</strong></p>
+      {errorMsg && <p style={{ color: 'red', fontSize: '0.85rem' }}>{errorMsg}</p>}
+      <Link href="/products" className="btn btn-primary">Go back to products</Link>
+    </div>
+  )
 
   return (
     <div className="invoice-screen">
-      {/* TOOLBAR: Hidden during printing */}
       <div className="invoice-toolbar no-print">
         <div className="container-invoice">
           <Link href="/checkout/confirm" className="btn-back">← Back</Link>
@@ -54,7 +95,6 @@ export default function InvoicePage({ params }) {
         </div>
       </div>
 
-      {/* THE INVOICE PAPER */}
       <div className="invoice-paper" id="invoice-content">
         <div className="invoice-header">
           <div className="brand">
@@ -150,30 +190,25 @@ export default function InvoicePage({ params }) {
         .invoice-screen { background: #f0f2f5; min-height: 100vh; padding: 40px 20px; font-family: 'Inter', system-ui, sans-serif; }
         .container-invoice { max-width: 800px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         .invoice-toolbar { background: white; padding: 15px 0; border-bottom: 1px solid #ddd; position: fixed; top: 0; left: 0; right: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        
         .invoice-paper { background: white; max-width: 800px; margin: 60px auto 0; padding: 60px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); color: #333; }
         .invoice-header { display: flex; justify-content: space-between; border-bottom: 3px solid #0AAD6E; padding-bottom: 30px; margin-bottom: 40px; }
         .logo { font-size: 28px; font-weight: 900; margin: 0; letter-spacing: -1px; }
         .logo span { color: #0AAD6E; }
         .company-info { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.5; }
-        
         .invoice-label { font-size: 40px; font-weight: 900; color: #f0f0f0; margin-bottom: 10px; line-height: 1; }
         .meta-item { font-size: 14px; margin-bottom: 4px; }
         .status-badge { display: inline-block; padding: 5px 12px; background: #0AAD6E; color: white; border-radius: 20px; font-size: 11px; font-weight: 700; margin-top: 10px; }
-        
         .invoice-billing { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
         .small-label { font-size: 10px; text-transform: uppercase; font-weight: 800; color: #aaa; letter-spacing: 1px; margin-bottom: 8px; }
         .customer-name { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
         .customer-details { font-size: 14px; color: #555; line-height: 1.6; }
         .method-val { font-weight: 700; color: #333; }
-
         .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
         .invoice-table th { text-align: left; background: #f8f9fa; padding: 15px; border-bottom: 2px solid #eee; font-size: 12px; text-transform: uppercase; color: #888; }
         .invoice-table td { padding: 15px; border-bottom: 1px solid #f0f0f0; font-size: 15px; }
         .variant-tag { font-size: 12px; color: #0AAD6E; margin-left: 8px; font-weight: 500; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-
         .invoice-footer-grid { display: grid; grid-template-columns: 1fr 280px; gap: 40px; }
         .note-box { font-size: 13px; color: #777; line-height: 1.6; background: #fcfcfc; padding: 20px; border-radius: 10px; border: 1px solid #eee; }
         .totals-box { font-size: 15px; }
@@ -181,20 +216,16 @@ export default function InvoicePage({ params }) {
         .deposit { color: #e53e3e; }
         .grand-total { border-top: 2px solid #0AAD6E; margin-top: 10px; padding-top: 15px; font-weight: 900; font-size: 20px; color: #0AAD6E; }
         .balance-note { font-size: 11px; color: #999; text-align: right; margin-top: 10px; }
-
         .final-footer { border-top: 1px solid #eee; margin-top: 60px; padding-top: 20px; text-align: center; font-size: 12px; color: #aaa; }
-
         .btn-back { text-decoration: none; color: #666; font-size: 14px; font-weight: 600; }
         .btn-print { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-share { background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-left: 10px; }
-
         @media print {
           .no-print { display: none !important; }
           .invoice-screen { background: white; padding: 0; }
           .invoice-paper { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 0; }
           body { background: white; }
         }
-
         @media (max-width: 600px) {
           .invoice-paper { padding: 30px; }
           .invoice-header { flex-direction: column; gap: 20px; }
