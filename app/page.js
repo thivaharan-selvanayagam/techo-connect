@@ -98,7 +98,7 @@ export default function Home() {
                       📶 Signal Boosted!
                     </div>
                     <div style={{ position: 'absolute', bottom: 60, left: -10, background: 'white', borderRadius: 12, padding: '0.5rem 0.9rem', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '1px solid rgba(10,173,110,0.2)', fontSize: '0.78rem', fontWeight: 700, color: '#078A57' }}>
-                      ⚡ 10x Faster
+                      ⚡ 4x Faster
                     </div>
                   </div>
                 </div>
@@ -314,13 +314,25 @@ export default function Home() {
           <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
             {featuredSpares.map((p, i) => (
               <div key={p.id} className="spare-card reveal" data-d={String(i % 2)}>
-                <div>
-                  <div className="spare-card__name">{p.name}</div>
-                  <div className="spare-card__cat">{p.category}</div>
+                {/* Clean inline photo container */}
+                <div style={{ width: '64px', height: '64px', borderRadius: '8px', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(0,0,0,0.04)' }}>
+                  <img 
+                    src={`/spares/${p.id}.webp`} 
+                    alt={p.name} 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} 
+                    onError={(e) => { e.target.src = '/antenna.webp' }}
+                  />
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="spare-card__name">{p.name}</div>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
+                    <span className="spare-card__cat">{p.category}</span>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--light-text)' }}>· {p.weight}g</span>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
                   <div className="spare-card__price">{formatLKR(p.price)}</div>
-                  <button onClick={() => { addItem(p, null, 1); toast.success(`${p.name} added to cart`) }} className="btn btn-primary btn-sm">Add</button>
+                  <button onClick={() => { addItem(p, null, 1); toast.success(`${p.name} added!`) }} className="btn btn-primary btn-sm">+ Add</button>
                 </div>
               </div>
             ))}
@@ -329,14 +341,28 @@ export default function Home() {
           {/* MOBILE SPARES */}
           <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {featuredSpares.map((p) => (
-              <div key={p.id} className="spare-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
-                <div style={{ width: '100%' }}>
-                  <div className="spare-card__name">{p.name}</div>
-                  <div className="spare-card__cat">{p.category}</div>
+              <div key={p.id} className="spare-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem', padding: '1.25rem 1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', width: '100%', alignItems: 'center' }}>
+                  {/* Photo row layout block */}
+                  <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border-light)' }}>
+                    <img 
+                      src={`/spares/${p.id}.webp`} 
+                      alt={p.name} 
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} 
+                      onError={(e) => { e.target.src = '/antenna.webp' }}
+                    />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="spare-card__name" style={{ fontSize: '0.9rem', lineHeight: 1.4 }}>{p.name}</div>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                      <span className="spare-card__cat">{p.category}</span>
+                      <span style={{ fontSize: '0.68rem', color: 'var(--light-text)' }}>· {p.weight}g</span>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                  <div className="spare-card__price">{formatLKR(p.price)}</div>
-                  <button onClick={() => { addItem(p, null, 1); toast.success(`${p.name} added to cart`) }} className="btn btn-primary btn-sm">Add</button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', borderTop: '1px solid rgba(0,0,0,0.04)', paddingTop: '0.75rem' }}>
+                  <div className="spare-card__price" style={{ fontSize: '1rem' }}>{formatLKR(p.price)}</div>
+                  <button onClick={() => { addItem(p, null, 1); toast.success(`${p.name} added!`) }} className="btn btn-primary btn-sm" style={{ padding: '0.4rem 1rem' }}>+ Add to Cart</button>
                 </div>
               </div>
             ))}
