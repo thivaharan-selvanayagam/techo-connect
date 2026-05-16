@@ -105,152 +105,266 @@ export default function InvoicePage() {
   return (
     <div className="invoice-page-bg">
       
-      {/* TOOLBAR */}
-      <div className="invoice-toolbar no-print">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link href="/checkout/confirm" className="btn-back">← Back to Confirmation</Link>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button onClick={handleDownloadPDF} disabled={downloading} className="btn btn-primary btn-sm">
-              {downloading ? '⏳ Saving...' : '⬇️ Download PDF'}
-            </button>
-            <button onClick={() => window.print()} className="btn btn-ghost btn-sm">💾 Print Sheet</button>
-            <button onClick={handleShare} className="btn btn-wa btn-sm">🔗 Share</button>
+      {/* ── DESKTOP ONLY VIEW (100% Original and Completely Unchanged) ── */}
+      <div className="view-desktop">
+        {/* TOOLBAR */}
+        <div className="invoice-toolbar no-print">
+          <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Link href="/checkout/confirm" className="btn-back">← Back to Confirmation</Link>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button onClick={handleDownloadPDF} disabled={downloading} className="btn btn-primary btn-sm">
+                {downloading ? '⏳ Saving...' : '⬇️ Download PDF'}
+              </button>
+              <button onClick={() => window.print()} className="btn btn-ghost btn-sm">💾 Print Sheet</button>
+              <button onClick={handleShare} className="btn btn-wa btn-sm">🔗 Share</button>
+            </div>
+          </div>
+        </div>
+
+        {/* THE PAPER FOOTPRINT */}
+        <div className="invoice-container" id="invoice-capture-area">
+          <div className="invoice-paper card">
+            
+            {/* HEADER LAYER WITH REPAIRED OVERLAP CONTROLS */}
+            <div className="invoice-header">
+              <div className="header-left">
+                <div className="nav__logo" style={{ marginBottom: '0.5rem' }}>
+                  <div className="nav__logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                  </div>
+                  <div>
+                    <div className="nav__logo-name">TECHO<span style={{color:'var(--green)'}}>CONNECT</span></div>
+                    <div className="nav__logo-sub">HARDWARE SOLUTIONS</div>
+                  </div>
+                </div>
+                <p className="company-info">
+                  Professional Signal Hardware Solutions<br />
+                  Kallady, Batticaloa, Sri Lanka<br />
+                  <strong>+94 70 665 6007</strong>
+                </p>
+              </div>
+              <div className="header-right">
+                <div className="label" style={{ marginBottom: '0.25rem' }}>Official Invoice</div>
+                <h1 className="invoice-no">#{order.order_number}</h1>
+                <div className={`badge ${isCOD ? 'badge-orange' : 'badge-green'}`} style={{ marginTop: '0.4rem' }}>
+                  {isCOD ? 'Deposit Confirmed' : 'Fully Paid'}
+                </div>
+              </div>
+            </div>
+
+            <div className="invoice-grid">
+              <div className="info-col">
+                <span className="small-label">Billed To</span>
+                <p style={{ fontSize: '1.05rem', margin: '0.1rem 0' }}><strong>{order.customer_name}</strong></p>
+                <p>{order.customer_address}</p>
+                <p>{order.customer_district}, Sri Lanka</p>
+                <p>{order.customer_phone1}</p>
+              </div>
+              <div className="info-col" style={{ textAlign: 'right' }}>
+                <span className="small-label">Order Reference</span>
+                <p>Payment Method: <strong>{isCOD ? 'Cash on Delivery (COD)' : 'Bank Deposit'}</strong></p>
+                <p>Purchasing Date: {purchaseDate}</p>
+              </div>
+            </div>
+
+            <table className="invoice-table">
+              <thead>
+                <tr>
+                  <th>Item Description</th>
+                  <th style={{ textAlign: 'center', width: '80px' }}>Qty</th>
+                  <th style={{ textAlign: 'right', width: '150px' }}>Total Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.items.map((item, i) => (
+                  <tr key={i}>
+                    <td>
+                      <div style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '0.95rem' }}>{item.name}</div>
+                      {item.variant && <div style={{ fontSize: '0.8rem', color: 'var(--green)', marginTop: '0.1rem' }}>{item.variant}</div>}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{item.qty}</td>
+                    <td style={{ textAlign: 'right', fontWeight: 600 }}>{formatLKR(item.price * item.qty)}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <td style={{ color: 'var(--muted)' }}>Standard Island-wide Courier Shipping ({order.customer_district})</td>
+                  <td style={{ textAlign: 'center' }}>1</td>
+                  <td style={{ textAlign: 'right' }}>{formatLKR(order.delivery_charge)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div className="invoice-summary-block">
+              {hasYagiWarranty ? (
+                <div className="warranty-box">
+                  <strong>🛡️ Hardware Warranty Statement</strong>
+                  <div className="warranty-row-item">Checking Guarantee: <span>5 Days Only</span></div>
+                  <div className="warranty-row-item">Technical Support/Service: <span>12 Months</span></div>
+                  <p className="warranty-date-clause">Coverage activates natively from the official purchasing date: {purchaseDate}</p>
+                </div>
+              ) : (
+                <div style={{ flex: 1 }} />
+              )}
+
+              <div className="invoice-summary">
+                {isCOD ? (
+                  <>
+                    <div className="summary-row">
+                      <span>Subtotal Invoice</span>
+                      <span>{formatLKR(order.product_total + order.delivery_charge)}</span>
+                    </div>
+                    <div className="summary-row" style={{ color: '#B91C1C' }}>
+                      <span>Confirmation Deposit</span>
+                      <span>-{formatLKR(order.deposit_amount || 500)}</span>
+                    </div>
+                    <div className="summary-row grand-total">
+                      <span>Balance Due</span>
+                      <span>{formatLKR(order.grand_total - (order.deposit_amount || 500))}</span>
+                    </div>
+                    <p className="summary-note">* Remaining balance is payable in cash directly to the courier agent upon arrival.</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="summary-row grand-total" style={{ borderTop: 'none', paddingTop: 0 }}>
+                      <span>Total Amount Paid</span>
+                      <span>{formatLKR(order.grand_total)}</span>
+                    </div>
+                    <p className="summary-note" style={{ color: 'var(--green)', fontStyle: 'normal', fontWeight: 600, fontSize: '0.8rem' }}>
+                      ✓ Transaction settled via Upfront Bank Transfer
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="invoice-legal-notes">
+              <p className="main-warning">
+                ⚠️ <strong>Important Note:</strong> This invoice must be submitted to claim any warranty inquiries or support metrics.
+              </p>
+              <div className="legal-links no-print">
+                <Link href="/terms">📄 Service Terms & Conditions</Link>
+                <span style={{ color: 'var(--border-light)' }}>|</span>
+                <Link href="/returns">🔄 Warranty Claims & Returns</Link>
+              </div>
+              <p className="legal-links-print print-only">
+                Terms & Conditions: techoconnect.lk/terms &bull; Warranty Claims & Returns: techoconnect.lk/returns
+              </p>
+            </div>
+
+            <div className="invoice-footer">
+              Thank you for choosing Techo Connect — Delivering the strongest signals across Sri Lanka.
+            </div>
           </div>
         </div>
       </div>
 
-      {/* THE PAPER FOOTPRINT */}
-      <div className="invoice-container" id="invoice-capture-area">
-        <div className="invoice-paper card">
-          
-          {/* HEADER LAYER WITH REPAIRED OVERLAP CONTROLS */}
-          <div className="invoice-header">
-            <div className="header-left">
-              <div className="nav__logo" style={{ marginBottom: '0.5rem' }}>
-                <div className="nav__logo-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      {/* ── MOBILE ONLY VIEW (Clean Stacker UI Alternative) ── */}
+      <div className="view-mobile no-print">
+        {/* Mobile Sticky Action Bar */}
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'white', borderBottom: '1px solid var(--border-light)', padding: '0.75rem 1rem', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '0.5rem', boxHyphen: 'var(--shadow-sm)' }}>
+          <Link href="/checkout/confirm" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted)' }}>&larr; Back to Confirmation</Link>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+            <button onClick={handleDownloadPDF} disabled={downloading} className="btn btn-primary btn-sm" style={{ padding: '0.6rem', fontSize: '0.85rem' }}>
+              {downloading ? '⏳ Saving...' : '⬇️ Download PDF'}
+            </button>
+            <button onClick={handleShare} className="btn btn-wa btn-sm" style={{ padding: '0.6rem', fontSize: '0.85rem' }}>🔗 Share Invoice</button>
+          </div>
+        </div>
+
+        {/* Mobile Card Payload Content */}
+        <div style={{ padding: '5.5rem 1rem 2rem' }}>
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.25rem', boxShadow: 'var(--shadow-card)' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="nav__logo-icon" style={{ width: '28px', height: '28px', borderRadius: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                 </div>
-                <div>
-                  <div className="nav__logo-name">TECHO<span style={{color:'var(--green)'}}>CONNECT</span></div>
-                  <div className="nav__logo-sub">HARDWARE SOLUTIONS</div>
-                </div>
+                <strong style={{ fontFamily: 'var(--font-head)', fontSize: '0.9rem', color: 'var(--ink)' }}>TECHO CONNECT</strong>
               </div>
-              <p className="company-info">
-                Professional Signal Hardware Solutions<br />
-                Kallady, Batticaloa, Sri Lanka<br />
-                <strong>+94 70 665 6007</strong>
-              </p>
-            </div>
-            <div className="header-right">
-              <div className="label" style={{ marginBottom: '0.25rem' }}>Official Invoice</div>
-              <h1 className="invoice-no">#{order.order_number}</h1>
-              <div className={`badge ${isCOD ? 'badge-orange' : 'badge-green'}`} style={{ marginTop: '0.4rem' }}>
+              <span className={`badge ${isCOD ? 'badge-orange' : 'badge-green'}`} style={{ fontSize: '0.68rem', padding: '0.2rem 0.5rem' }}>
                 {isCOD ? 'Deposit Confirmed' : 'Fully Paid'}
+              </span>
+            </div>
+
+            <div style={{ marginBottom: '1.25rem' }}>
+              <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--light-text)' }}>Invoice Number</span>
+              <h2 style={{ fontFamily: 'var(--font-head)', fontSize: '1.3rem', color: 'var(--ink)', margin: 0 }}>#{order.order_number}</h2>
+              <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.15rem' }}>Date: {purchaseDate}</div>
+            </div>
+
+            <div style={{ background: 'var(--bg)', padding: '1rem', borderRadius: 8, border: '1px solid var(--border-light)', marginBottom: '1.25rem', fontSize: '0.85rem' }}>
+              <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.25rem' }}>Billed To</span>
+              <div style={{ fontWeight: 700, color: 'var(--ink)' }}>{order.customer_name}</div>
+              <div style={{ color: 'var(--slate)', marginTop: '0.15rem', lineHeight: 1.4 }}>{order.customer_address}, {order.customer_district}</div>
+              <div style={{ color: 'var(--muted)', marginTop: '0.15rem' }}>{order.customer_phone1}</div>
+            </div>
+
+            <div style={{ fontSize: '0.85rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '0.75rem' }}>
+              <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--light-text)', marginBottom: '0.15rem' }}>Payment Method</span>
+              <strong style={{ color: 'var(--ink)' }}>{isCOD ? 'Cash on Delivery (COD)' : 'Bank Deposit'}</strong>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--light-text)', marginBottom: '0.5rem' }}>Line Items</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {order.items.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', fontSize: '0.85rem', gap: '0.5rem', borderBottom: '1px dashed rgba(0,0,0,0.05)', paddingBottom: '0.5rem' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.name}</div>
+                      {item.variant && <div style={{ fontSize: '0.75rem', color: 'var(--green)', marginTop: '0.1rem' }}>{item.variant}</div>}
+                      <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '0.1rem' }}>Qty: {item.qty}</div>
+                    </div>
+                    <strong style={{ color: 'var(--ink)', whiteSpace: 'nowrap' }}>{formatLKR(item.price * item.qty)}</strong>
+                  </div>
+                ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)' }}>
+                  <span>Courier Shipping</span>
+                  <span>{formatLKR(order.delivery_charge)}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="invoice-grid">
-            <div className="info-col">
-              <span className="small-label">Billed To</span>
-              <p style={{ fontSize: '1.05rem', margin: '0.1rem 0' }}><strong>{order.customer_name}</strong></p>
-              <p>{order.customer_address}</p>
-              <p>{order.customer_district}, Sri Lanka</p>
-              <p>{order.customer_phone1}</p>
-            </div>
-            <div className="info-col" style={{ textAlign: 'right' }}>
-              <span className="small-label">Order Reference</span>
-              <p>Payment Method: <strong>{isCOD ? 'Cash on Delivery (COD)' : 'Bank Deposit'}</strong></p>
-              <p>Purchasing Date: {purchaseDate}</p>
-            </div>
-          </div>
-
-          <table className="invoice-table">
-            <thead>
-              <tr>
-                <th>Item Description</th>
-                <th style={{ textAlign: 'center', width: '80px' }}>Qty</th>
-                <th style={{ textAlign: 'right', width: '150px' }}>Total Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items.map((item, i) => (
-                <tr key={i}>
-                  <td>
-                    <div style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '0.95rem' }}>{item.name}</div>
-                    {item.variant && <div style={{ fontSize: '0.8rem', color: 'var(--green)', marginTop: '0.1rem' }}>{item.variant}</div>}
-                  </td>
-                  <td style={{ textAlign: 'center' }}>{item.qty}</td>
-                  <td style={{ textAlign: 'right', fontWeight: 600 }}>{formatLKR(item.price * item.qty)}</td>
-                </tr>
-              ))}
-              <tr>
-                <td style={{ color: 'var(--muted)' }}>Standard Island-wide Courier Shipping ({order.customer_district})</td>
-                <td style={{ textAlign: 'center' }}>1</td>
-                <td style={{ textAlign: 'right' }}>{formatLKR(order.delivery_charge)}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div className="invoice-summary-block">
-            {hasYagiWarranty ? (
-              <div className="warranty-box">
-                <strong>🛡️ Hardware Warranty Statement</strong>
-                <div className="warranty-row-item">Checking Guarantee: <span>5 Days Only</span></div>
-                <div className="warranty-row-item">Technical Support/Service: <span>12 Months</span></div>
-                <p className="warranty-date-clause">Coverage activates natively from the official purchasing date: {purchaseDate}</p>
-              </div>
-            ) : (
-              <div style={{ flex: 1 }} />
-            )}
-
-            <div className="invoice-summary">
-              {isCOD ? (
-                <>
-                  <div className="summary-row">
-                    <span>Subtotal Invoice</span>
-                    <span>{formatLKR(order.product_total + order.delivery_charge)}</span>
-                  </div>
-                  <div className="summary-row" style={{ color: '#B91C1C' }}>
-                    <span>Confirmation Deposit</span>
-                    <span>-{formatLKR(order.deposit_amount || 500)}</span>
-                  </div>
-                  <div className="summary-row grand-total">
-                    <span>Balance Due</span>
-                    <span>{formatLKR(order.grand_total - (order.deposit_amount || 500))}</span>
-                  </div>
-                  <p className="summary-note">* Remaining balance is payable in cash directly to the courier agent upon arrival.</p>
-                </>
-              ) : (
-                <>
-                  <div className="summary-row grand-total" style={{ borderTop: 'none', paddingTop: 0 }}>
-                    <span>Total Amount Paid</span>
-                    <span>{formatLKR(order.grand_total)}</span>
-                  </div>
-                  <p className="summary-note" style={{ color: 'var(--green)', fontStyle: 'normal', fontWeight: 600, fontSize: '0.8rem' }}>
-                    ✓ Transaction settled via Upfront Bank Transfer
-                  </p>
-                </>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {hasYagiWarranty && (
+                <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', padding: '1rem', borderRadius: 8, fontSize: '0.8rem', lineHeight: 1.5 }}>
+                  <strong style={{ display: 'block', color: 'var(--ink)', marginBottom: '0.25rem' }}>🛡️ Hardware Warranty</strong>
+                  <div>Checking Guarantee: 5 Days Only</div>
+                  <div>Technical Service: 12 Months</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '0.3rem', fontStyle: 'italic' }}>Active from purchase date: {purchaseDate}</div>
+                </div>
               )}
-            </div>
-          </div>
 
-          <div className="invoice-legal-notes">
-            <p className="main-warning">
-              ⚠️ <strong>Important Note:</strong> This invoice must be submitted to claim any warranty inquiries or support metrics.
-            </p>
-            <div className="legal-links no-print">
-              <Link href="/terms">📄 Service Terms & Conditions</Link>
-              <span style={{ color: 'var(--border-light)' }}>|</span>
-              <Link href="/returns">🔄 Warranty Claims & Returns</Link>
+              <div style={{ borderTop: '1px solid rgba(0,0,0,0.04)', paddingTop: '0.75rem' }}>
+                {isCOD ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.875rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--slate)' }}>
+                      <span>Invoice Subtotal:</span><span>{formatLKR(order.product_total + order.delivery_charge)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B91C1C' }}>
+                      <span>COD Deposit Paid:</span><span>-{formatLKR(order.deposit_amount || 500)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', color: 'var(--green)', borderTop: '1px solid var(--border-light)', paddingTop: '0.4rem', marginTop: '0.2rem' }}>
+                      <span>Balance Due:</span><span>{formatLKR(order.grand_total - (order.deposit_amount || 500))}</span>
+                    </div>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--muted)', fontStyle: 'italic', marginTop: '0.2rem', textAlign: 'right' }}>* Collectible in cash upon courier arrival.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate)' }}>Total Amount Paid:</span>
+                    <strong style={{ fontSize: '1.2rem', color: 'var(--green)', fontFamily: 'var(--font-head)' }}>{formatLKR(order.grand_total)}</strong>
+                  </div>
+                )}
+              </div>
             </div>
-            <p className="legal-links-print print-only">
-              Terms & Conditions: techoconnect.lk/terms &bull; Warranty Claims & Returns: techoconnect.lk/returns
-            </p>
-          </div>
 
-          <div className="invoice-footer">
-            Thank you for choosing Techo Connect — Delivering the strongest signals across Sri Lanka.
+            <div style={{ marginTop: '1.5rem', background: '#FAFDFB', border: '1px dashed var(--border)', padding: '0.85rem', borderRadius: 8, fontSize: '0.78rem', lineHeight: 1.4 }}>
+              <p style={{ color: 'var(--ink)' }}>⚠️ <strong>Important Note:</strong> Keep this invoice safe to present for any future warranty claims.</p>
+            </div>
+
+            <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--light-text)', marginTop: '1.5rem', borderTop: '1px solid var(--surface)', paddingTop: '0.75rem' }}>
+              Techo Connect &bull; Kallady, Batticaloa
+            </div>
           </div>
         </div>
       </div>
@@ -321,9 +435,28 @@ export default function InvoicePage() {
         
         .print-only { display: none !important; }
 
+        /* Conditional Layout Core Screen Viewport Control Toggles */
+        @media (min-width: 769px) {
+          .view-mobile { display: none !important; }
+        }
+        
+        @media (max-width: 768px) {
+          /* Locks desktop layout offscreen so print scripts can extract its untouched dimensions */
+          .view-desktop {
+            position: absolute !important;
+            left: -9999px !important;
+            top: 0 !important;
+            width: 840px !important;
+            opacity: 0.001 !important;
+            pointer-events: none !important;
+          }
+        }
+
         @media print {
           .no-print { display: none !important; }
           .print-only { display: block !important; }
+          .view-mobile { display: none !important; }
+          .view-desktop { position: static !important; width: 100% !important; opacity: 1 !important; }
           @page { size: A4 portrait; margin: 10mm 15mm; }
           body { background: white; color: black; }
           .invoice-page-bg { padding: 0; background: white; min-height: auto; }
