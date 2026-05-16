@@ -249,7 +249,7 @@ export default function InvoicePage() {
         
         .invoice-summary { width: 200px; }
         .summary-row { display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.8rem; color: var(--slate); }
-        .grand-total { border-top: 2px solid var(--green); margin-top: 0.3rem; padding-top: 0.6rem; font-family: var(--font-head); font-weight: 800; font-size: 1.15rem; color: var(--green); }
+        .grand-total { border-top: 2px solid var(--green); margin-top: 0.3rem; padding-top: 0.6rem; font-family: var(--font-head); font-weight: 800; font-size: 1rem; color: var(--green); }
         .summary-note { font-size: 0.7rem; color: var(--muted); text-align: right; margin-top: 0.25rem; }
         
         .invoice-legal-notes { background: #FAFDFB; border: 1px dashed var(--border); padding: 0.9rem; border-radius: 8px; margin-top: 2rem; text-align: left; }
