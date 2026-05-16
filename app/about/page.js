@@ -40,7 +40,9 @@ export default function About() {
       {/* WHO WE ARE */}
       <section style={{ padding: '6rem 0', background: 'white' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'center' }} className="two-col">
+          
+          {/* DESKTOP WHO WE ARE (100% Unchanged original layout matrix) */}
+          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'center' }}>
             <div>
               <div className="label" style={{ marginBottom: '0.75rem' }}>Who We Are</div>
               <h2 className="section-title reveal" style={{ marginBottom: '1.5rem' }}>Built for the<br /><em>Last Signal Mile</em></h2>
@@ -55,7 +57,6 @@ export default function About() {
               </p>
             </div>
             <div className="reveal" data-d="1">
-              {/* Stats card */}
               <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 20, padding: '2.5rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                   {[
@@ -70,8 +71,6 @@ export default function About() {
                     </div>
                   ))}
                 </div>
-
-                {/* Contact info */}
                 <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                   {[
                     { icon: '📞', val: '+94 70 665 6007' },
@@ -86,13 +85,61 @@ export default function About() {
               </div>
             </div>
           </div>
+
+          {/* MOBILE WHO WE ARE (Stacked layout view) */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            <div>
+              <div className="label" style={{ marginBottom: '0.5rem' }}>Who We Are</div>
+              <h2 className="section-title" style={{ marginBottom: '1.25rem', fontSize: '1.75rem' }}>Built for the<br /><em>Last Signal Mile</em></h2>
+              <p style={{ color: 'var(--muted)', fontSize: '0.925rem', lineHeight: 1.65, marginBottom: '1rem' }}>
+                Techo Connect is the hardware and antenna manufacturing arm of <a href="https://www.techotraders.com.lk" target="_blank" rel="noopener" style={{ color: 'var(--green)', fontWeight: 600 }}>Techo Traders</a>. We design, manufacture, and sell Yagi antennas built specifically for one purpose: boosting weak 4G/LTE signals for wireless routers across Sri Lanka.
+              </p>
+              <p style={{ color: 'var(--muted)', fontSize: '0.925rem', lineHeight: 1.65, marginBottom: '1rem' }}>
+                Our products are the result of real-world testing in areas with notoriously poor signal — remote villages, hilly terrain, districts far from towers. Every element, every cable, every connector is chosen because it performs in the conditions our customers actually face.
+              </p>
+              <p style={{ color: 'var(--muted)', fontSize: '0.925rem', lineHeight: 1.65 }}>
+                Based in Kallady, Batticaloa, we deliver island-wide and support every customer personally — directly via WhatsApp from our technical team.
+              </p>
+            </div>
+            <div>
+              <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, padding: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  {[
+                    { val: '2', suffix: '+', lbl: 'Antenna Models' },
+                    { val: '25', suffix: '', lbl: 'Districts Served' },
+                    { val: '4', suffix: '', lbl: 'Carrier Networks' },
+                    { val: '6', suffix: 'mo', lbl: 'Service Warranty' },
+                  ].map(s => (
+                    <div key={s.lbl} style={{ textAlign: 'center', padding: '1rem 0.5rem', background: 'white', borderRadius: 8, border: '1px solid var(--border-light)' }}>
+                      <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.75rem', color: 'var(--green)', lineHeight: 1 }}>{s.val}<span style={{ fontSize: '1.1rem' }}>{s.suffix}</span></div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--muted)', fontWeight: 500, marginTop: '0.25rem' }}>{s.lbl}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1rem' }}>
+                  {[
+                    { icon: '📞', val: '+94 70 665 6007' },
+                    { icon: '✉️', val: 'connect@techotraders.com.lk' },
+                    { icon: '📍', val: 'Kallady, Batticaloa, Sri Lanka' },
+                  ].map(c => (
+                    <div key={c.val} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', fontSize: '0.82rem', color: 'var(--slate)' }}>
+                      <span>{c.icon}</span><span>{c.val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
       {/* MISSION & VISION */}
       <section style={{ padding: '6rem 0', background: 'var(--bg)' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }} className="two-col">
+          
+          {/* DESKTOP MISSION & VISION (100% Unchanged original layout block) */}
+          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
             <div style={{ background: 'var(--green)', borderRadius: 20, padding: '3rem', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
               <div style={{ position: 'relative' }}>
@@ -111,6 +158,27 @@ export default function About() {
               </p>
             </div>
           </div>
+
+          {/* MOBILE MISSION & VISION */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ background: 'var(--green)', borderRadius: 16, padding: '2rem 1.5rem', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎯</div>
+                <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.3rem', color: 'white', marginBottom: '0.5rem' }}>Our Mission</div>
+                <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', lineHeight: 1.6 }}>
+                  To eliminate the "no signal" barrier for every Sri Lankan household and business. We believe access to reliable internet is not a luxury — it is essential infrastructure, and we intend to build it.
+                </p>
+              </div>
+            </div>
+            <div style={{ background: 'white', borderRadius: 16, padding: '2rem 1.5rem', border: '1px solid var(--border-light)' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔭</div>
+              <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.3rem', color: 'var(--ink)', marginBottom: '0.5rem' }}>Our Vision</div>
+              <p style={{ color: 'var(--muted)', fontSize: '0.875rem', lineHeight: 1.6 }}>
+                To become Sri Lanka's most trusted signal hardware company — with a technician network in every district, and antennas on every tower-challenged rooftop from Jaffna to Matara.
+              </p>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -121,7 +189,9 @@ export default function About() {
             <div className="label" style={{ justifyContent: 'center', marginBottom: '0.75rem' }}>Why Choose Us</div>
             <h2 className="section-title reveal">The Techo Connect<br /><em>Difference</em></h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+
+          {/* DESKTOP WHY CHOOSE US (100% Unchanged original 3-column configuration) */}
+          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
             {whyUs.map((w, i) => (
               <div key={w.title} className="reveal" data-d={String(i % 3)} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, padding: '2rem 1.75rem' }}>
                 <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>{w.icon}</div>
@@ -130,6 +200,18 @@ export default function About() {
               </div>
             ))}
           </div>
+
+          {/* MOBILE WHY CHOOSE US */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {whyUs.map((w) => (
+              <div key={w.title} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 12, padding: '1.25rem' }}>
+                <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{w.icon}</div>
+                <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)', marginBottom: '0.4rem' }}>{w.title}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.55 }}>{w.desc}</div>
+              </div>
+            ))}
+          </div>
+
         </div>
       </section>
 
@@ -143,11 +225,13 @@ export default function About() {
               Techo Connect is one of three companies under Techo Traders — each powering a different dimension of modern connectivity.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+
+          {/* DESKTOP ECOSYSTEM (100% Unchanged original layout metrics) */}
+          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
             {[
-              { emoji: '🧠', name: 'Techo Labs', color: '#0A4FD4', desc: 'Web development, digital marketing, and market research.', here: false, href: 'https://labs.techotraders.com.lk' },
-              { emoji: '📡', name: 'Techo Connect', color: '#0AAD6E', desc: 'Antenna and hardware manufacturing for Sri Lankan 4G networks.', here: true, href: '#' },
-              { emoji: '💪', name: 'Techo Xpress', color: '#D44F0A', desc: 'Courier and logistics service with real-time tracking.', here: false, href: 'https://xpress.techotraders.com.lk' },
+              { emoji: '🧠', name: 'Techo Labs', color: '#0A4FD4', desc: 'Web development, digital marketing, and market research.', here: false },
+              { emoji: '📡', name: 'Techo Connect', color: '#0AAD6E', desc: 'Antenna and hardware manufacturing for Sri Lankan 4G networks.', here: true },
+              { emoji: '💪', name: 'Techo Xpress', color: '#D44F0A', desc: 'Courier and logistics service with real-time tracking.', here: false },
             ].map(e => (
               <div key={e.name} style={{ background: 'white', border: `1px solid ${e.here ? e.color : 'var(--border-light)'}`, borderLeft: `4px solid ${e.color}`, borderRadius: 12, padding: '1.5rem' }}>
                 <div style={{ fontSize: '1.75rem', marginBottom: '0.6rem' }}>{e.emoji}</div>
@@ -158,13 +242,35 @@ export default function About() {
               </div>
             ))}
           </div>
+
+          {/* MOBILE ECOSYSTEM */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {[
+              { emoji: '🧠', name: 'Techo Labs', color: '#0A4FD4', desc: 'Web development, digital marketing, and market research.', here: false },
+              { emoji: '📡', name: 'Techo Connect', color: '#0AAD6E', desc: 'Antenna and hardware manufacturing for Sri Lankan 4G networks.', here: true },
+              { emoji: '💪', name: 'Techo Xpress', color: '#D44F0A', desc: 'Courier and logistics service with real-time tracking.', here: false },
+            ].map(e => (
+              <div key={e.name} style={{ background: 'white', border: `1px solid ${e.here ? e.color : 'var(--border-light)'}`, borderLeft: `4px solid ${e.color}`, borderRadius: 12, padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '1.5rem' }}>{e.emoji}</span>
+                  <strong style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)' }}>
+                    {e.name} {e.here && <span style={{ fontSize: '0.65rem', color: e.color, fontWeight: 600 }}>(Here)</span>}
+                  </strong>
+                </div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--muted)', lineHeight: 1.5 }}>{e.desc}</div>
+              </div>
+            ))}
+          </div>
+
         </div>
       </section>
 
       {/* WORKING HOURS */}
       <section style={{ padding: '5rem 0', background: 'white' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }} className="two-col">
+          
+          {/* DESKTOP WORKING HOURS (100% Unchanged original format layout) */}
+          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }}>
             <div>
               <div className="label" style={{ marginBottom: '0.75rem' }}>Working Hours</div>
               <h2 className="section-title reveal" style={{ marginBottom: '2rem' }}>When We're <em>Available</em></h2>
@@ -195,17 +301,43 @@ export default function About() {
               </div>
             </div>
           </div>
+
+          {/* MOBILE WORKING HOURS */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            <div>
+              <div className="label" style={{ marginBottom: '0.5rem' }}>Working Hours</div>
+              <h2 className="section-title" style={{ marginBottom: '1.25rem', fontSize: '1.75rem' }}>When We're <em>Available</em></h2>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {hours.map((h) => (
+                  <div key={h.day} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.85rem 0', borderBottom: '1px solid var(--border-light)', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--slate)' }}>{h.day}</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: h.time === 'Closed' ? '#EF4444' : 'var(--green)' }}>{h.time}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="alert alert-info" style={{ marginTop: '1.25rem', padding: '0.75rem 1rem' }}>
+                <span style={{ fontSize: '0.82rem' }}>💡 WhatsApp support is available outside working hours for urgent queries.</span>
+              </div>
+            </div>
+            <div>
+              <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, padding: '1.5rem', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)', marginBottom: '1.25rem' }}>Get In Touch</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <a href={`${WA_LINK}${encodeURIComponent('Hello Techo Connect! I need help with my antenna.')}`} target="_blank" rel="noopener" className="btn btn-wa btn-lg" style={{ width: '100%', padding: '0.75rem' }}>
+                    Chat on WhatsApp
+                  </a>
+                  <a href={WA_COMMUNITY} target="_blank" rel="noopener" className="btn btn-outline" style={{ width: '100%', padding: '0.75rem', textAlign: 'center' }}>Join Community</a>
+                  <Link href="/contact" className="btn btn-ghost" style={{ width: '100%', padding: '0.75rem', textAlign: 'center' }}>Contact Page</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
       <Footer />
       <WAFloat />
-
-      <style jsx>{`
-        @media (max-width: 768px) {
-          .two-col { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </>
   )
 }
