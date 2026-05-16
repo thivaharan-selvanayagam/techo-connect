@@ -107,7 +107,7 @@ export default function InvoicePage() {
               </p>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div className="label" style={{ marginBottom: '0.2rem', fontSize: '0.3rem' }}>Official Invoice</div>
+              <div className="label" style={{ marginBottom: '0.2rem', fontSize: '0.6rem' }}>Official Invoice</div>
               <h1 className="invoice-no">#{order.order_number}</h1>
               <div className={`badge ${isCOD ? 'badge-orange' : 'badge-green'}`} style={{ marginTop: '0.3rem', fontSize: '0.65rem' }}>
                 {isCOD ? 'Deposit Confirmed' : 'Fully Paid'}
@@ -233,7 +233,7 @@ export default function InvoicePage() {
         
         .invoice-header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--surface); padding-bottom: 1rem; margin-bottom: 1.5rem; }
         .company-info { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
-        .invoice-no { font-family: var(--font-head); font-weight: 800; font-size: 1.4rem; color: var(--ink); margin: 0; }
+        .invoice-no { font-family: var(--font-head); font-weight: 800; font-size: 1rem; color: var(--ink); margin: 0; }
         
         .invoice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         .small-label { display: block; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; color: var(--light-text); margin-bottom: 0.25rem; }
