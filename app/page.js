@@ -59,7 +59,7 @@ export default function Home() {
                   </a>
                 </div>
                 <div className="hero__trust">
-                  {['5-Day Checking Warranty', '6-Month Service Warranty', 'Island-Wide Delivery'].map(t => (
+                  {['5-Day Checking Warranty', '12-Month Service Warranty', 'Island-Wide Delivery'].map(t => (
                     <div key={t} className="hero__trust-item">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                       {t}
@@ -264,16 +264,16 @@ export default function Home() {
             <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(10,173,110,0.15)', border: '1px solid rgba(10,173,110,0.15)' }}>
               {/* Replace VIDEO_ID with your actual YouTube video ID */}
               <iframe
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                src="https://www.youtube.com/embed/5-TLEw9rHVU?si=n4ih4HFJPt5byVB4"
                 title="Techo Connect Yagi Antenna Review"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
               />
             </div>
-            <p style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.75rem' }}>
+            {/* <p style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.75rem' }}>
               📌 Replace the YouTube video ID in <code style={{ background: 'var(--surface)', padding: '0.1rem 0.4rem', borderRadius: 4, fontSize: '0.72rem' }}>app/page.js</code> with your actual video ID
-            </p>
+            </p> */}
           </div>
         </div>
       </section>
@@ -289,7 +289,7 @@ export default function Home() {
             {testimonials.map((t, i) => (
               <div key={t.id} className="reveal" data-d={String(i % 3)} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, padding: '1.5rem' }}>
                 <div className="stars" style={{ marginBottom: '0.75rem' }}>
-                  {[...Array(t.rating)].map((_, i) => <span key={i} className="star">★</span>)}
+                  {[...Array(t.rating)].map((_, i) => <span key={i} className="star">★</span>)}                 
                 </div>
                 <p style={{ fontSize: '0.875rem', color: 'var(--slate)', lineHeight: 1.75, marginBottom: '1rem', fontStyle: 'italic' }}>"{t.text}"</p>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
