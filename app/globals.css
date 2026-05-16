@@ -532,3 +532,20 @@ input, select, textarea { font-family: inherit; }
   color: var(--green) !important;
 }
 
+/* ============================================================
+   TECHO CONNECT — MOBILE CONDITIONAL SWITCHES
+   ============================================================ */
+
+/* On Desktop screens */
+@media (min-width: 961px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* On Mobile screens */
+@media (max-width: 960px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
