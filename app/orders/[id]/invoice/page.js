@@ -107,7 +107,7 @@ export default function InvoicePage() {
               </p>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div className="label" style={{ marginBottom: '0.2rem', fontSize: '0.6rem' }}>Official Invoice</div>
+              <div className="label" style={{ marginBottom: '0.2rem', fontSize: '0.3rem' }}>Official Invoice</div>
               <h1 className="invoice-no">#{order.order_number}</h1>
               <div className={`badge ${isCOD ? 'badge-orange' : 'badge-green'}`} style={{ marginTop: '0.3rem', fontSize: '0.65rem' }}>
                 {isCOD ? 'Deposit Confirmed' : 'Fully Paid'}
