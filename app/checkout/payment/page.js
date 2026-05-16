@@ -4,8 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Nav from '../../../components/layout/Nav'
 import Footer from '../../../components/layout/Footer'
-import { useCartStore } from '../../../store/cart'
-import { useCheckoutStore } from '../../../store/cart'
+import { useCartStore, useCheckoutStore } from '../../../store/cart' // Consolidated imports
 import { formatLKR, calcDelivery, BANK_DETAILS } from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
@@ -15,13 +14,9 @@ export default function PaymentPage() {
   const items = useCartStore(s => s.items)
   const clearCart = useCartStore(s => s.clearCart)
   const customer = useCheckoutStore(s => s.customer)
-  const setPaymentMethod = useCheckoutStore(s => s.setPaymentMethod)
-  const setReceiptUrl = useCheckoutStore(s => s.setReceiptUrl)
-  const setOrder = useCheckoutStore(s => s.setOrder)
 
   const [method, setMethod] = useState(null)
   const [receipt, setReceipt] = useState(null)
-  const [uploading, setUploading] = useState(false)
   const [placing, setPlacing] = useState(false)
   const fileRef = useRef()
 
@@ -55,29 +50,24 @@ export default function PaymentPage() {
   }
 
   const uploadReceipt = async (orderNumber) => {
-  if (!receipt) return null
-  try {
-    const ext = receipt.name.split('.').pop()
-    
-    // GOOD: Just the filename
-    const path = `${orderNumber}.${ext}` 
-    
-    // BAD (Avoid this): 
-    // const path = `receipts/${orderNumber}.${ext}` 
+    if (!receipt) return null
+    try {
+      const ext = receipt.name.split('.').pop()
+      const path = `${orderNumber}.${ext}` 
 
-    const { data, error } = await supabase.storage
-      .from('receipts') // This already tells Supabase which bucket to use
-      .upload(path, receipt, { upsert: true })
+      const { data, error } = await supabase.storage
+        .from('receipts')
+        .upload(path, receipt, { upsert: true })
 
-    if (error) throw error
-    
-    const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path)
-    return urlData.publicUrl
-  } catch (err) {
-    console.error('Upload error:', err)
-    return null
+      if (error) throw error
+      
+      const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path)
+      return urlData.publicUrl
+    } catch (err) {
+      console.error('Upload error:', err)
+      return null
+    }
   }
-}
 
   const handlePlaceOrder = async () => {
     if (!method) { toast.error('Please select a payment method.'); return }
@@ -85,7 +75,6 @@ export default function PaymentPage() {
 
     setPlacing(true)
     try {
-      // Build order payload
       const orderItems = items.map(i => ({
         key: i.key,
         productId: i.productId,
@@ -96,7 +85,7 @@ export default function PaymentPage() {
         qty: i.qty,
       }))
 
-      // Call API to create order and get order number
+      // 1. Call API to create order
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,7 +93,7 @@ export default function PaymentPage() {
           items: orderItems,
           customer,
           paymentMethod: method,
-          receiptUrl: null, // will update after upload
+          receiptUrl: null, 
           productTotal,
           deliveryCharge: delivery,
           grandTotal,
@@ -113,36 +102,38 @@ export default function PaymentPage() {
       })
 
       if (!res.ok) throw new Error('Order creation failed')
-      const { orderId, orderNumber, adminWaUrl } = await res.json()
+      const { orderId, orderNumber } = await res.json()
 
-      // Upload receipt using order number
+      // 2. Upload receipt to storage bucket
       const receiptUrl = await uploadReceipt(orderNumber)
 
-      // Update order with receipt URL if we got one
+      // 3. Update core orders entry with clean secure public image URL string
       if (receiptUrl) {
         await supabase.from('orders').update({ receipt_url: receiptUrl }).eq('id', orderId)
       }
 
+      // 4. Trigger Automatic Discord Notification
       await fetch('/api/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        order: {
-          order_number: orderNumber,
-          customer_name: customer.name,
-          customer_phone1: customer.phone1,
-          customer_district: customer.district,
-          customer_address: customer.address,
-          items: items,
-          grand_total: grandTotal,
-          payment_method: method
-        },
-        receiptUrl: receiptUrl // This will now show up in Discord!
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order: {
+            order_number: orderNumber,
+            customer_name: customer.name,
+            customer_phone1: customer.phone1,
+            customer_district: customer.district,
+            customer_address: customer.address,
+            items: items,
+            grand_total: grandTotal,
+            payment_method: method
+          },
+          receiptUrl: receiptUrl 
+        })
       })
-    });
 
-    // 5. Done!
-    router.push('/checkout/confirm');
+      // 5. Clear cart store state variables safely & Route to Confirmation via parameters
+      clearCart()
+      router.push(`/checkout/confirm?orderNumber=${orderNumber}`)
 
     } catch (err) {
       console.error(err)
@@ -169,8 +160,9 @@ export default function PaymentPage() {
             <div className="step"><div className="step-num">4</div>Confirmation</div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem', alignItems: 'start' }}>
-            <div>
+          {/* RESPONSIVE LAYOUT CONTAINER */}
+          <div className="payment-layout">
+            <div className="main-content">
 
               {/* Delivery summary */}
               <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.25rem 1.5rem', marginBottom: '1.5rem' }}>
@@ -189,16 +181,17 @@ export default function PaymentPage() {
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border-light)', padding: '2rem', marginBottom: '1.5rem' }}>
                 <h2 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.3rem', color: 'var(--ink)', marginBottom: '1.5rem' }}>Choose Payment Method</h2>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+                {/* RESPONSIVE METHODS GRID */}
+                <div className="methods-grid">
                   {/* COD */}
-                  <button onClick={() => setMethod('cod')} style={{ padding: '1.5rem', border: '2px solid', borderColor: method === 'cod' ? 'var(--green)' : 'var(--border-light)', borderRadius: 12, background: method === 'cod' ? 'rgba(10,173,110,0.05)' : 'white', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}>
+                  <button onClick={() => setMethod('cod')} className={`method-btn ${method === 'cod' ? 'selected' : ''}`}>
                     <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>🤝</div>
                     <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)', marginBottom: '0.25rem' }}>Cash on Delivery</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--muted)', lineHeight: 1.5 }}>Pay when you receive. Deposit of LKR 500 required to confirm.</div>
                   </button>
 
                   {/* Bank deposit */}
-                  <button onClick={() => setMethod('bank')} style={{ padding: '1.5rem', border: '2px solid', borderColor: method === 'bank' ? 'var(--green)' : 'var(--border-light)', borderRadius: 12, background: method === 'bank' ? 'rgba(10,173,110,0.05)' : 'white', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}>
+                  <button onClick={() => setMethod('bank')} className={`method-btn ${method === 'bank' ? 'selected' : ''}`}>
                     <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>🏦</div>
                     <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)', marginBottom: '0.25rem' }}>Bank Deposit</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--muted)', lineHeight: 1.5 }}>Deposit full amount + LKR 500 delivery deposit.</div>
@@ -280,7 +273,7 @@ export default function PaymentPage() {
             </div>
 
             {/* Summary sidebar */}
-            <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border-light)', padding: '1.5rem', position: 'sticky', top: '6rem' }}>
+            <div className="summary-sidebar">
               <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)', marginBottom: '1.1rem' }}>Order Total</div>
               {items.map(item => (
                 <div key={item.key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.4rem' }}>
@@ -290,7 +283,6 @@ export default function PaymentPage() {
               ))}
               <div style={{ borderTop: '1px solid var(--border-light)', marginTop: '0.75rem', paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--muted)' }}><span>Delivery</span><span>{formatLKR(delivery)}</span></div>
-                {/* <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--muted)' }}><span>Deposit (required)</span><span>{formatLKR(depositAmount)}</span></div> */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.15rem', color: 'var(--ink)', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-light)' }}>
                   <span>Grand Total</span>
                   <span style={{ color: 'var(--green)' }}>{formatLKR(method === 'bank' ? grandTotal : depositAmount)}</span>
@@ -304,6 +296,61 @@ export default function PaymentPage() {
         </div>
       </div>
       <Footer />
+
+      {/* COMPACT STYLED JSX RESPONSIVE CONTROLS */}
+      <style jsx>{`
+        .payment-layout {
+          display: grid;
+          grid-template-columns: 1fr 300px;
+          gap: 2rem;
+          align-items: start;
+        }
+        .main-content {
+          width: 100%;
+        }
+        .methods-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+        .method-btn {
+          padding: 1.5rem;
+          border: 2px solid var(--border-light);
+          border-radius: 12px;
+          background: white;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.2s;
+        }
+        .method-btn.selected {
+          border-color: var(--green);
+          background: rgba(10,173,110,0.05);
+        }
+        .summary-sidebar {
+          background: white;
+          border-radius: 16px;
+          border: 1px solid var(--border-light);
+          padding: 1.5rem;
+          position: sticky;
+          top: 6rem;
+        }
+
+        @media (max-width: 768px) {
+          .payment-layout {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+          }
+          .methods-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+          .summary-sidebar {
+            position: static;
+            width: 100%;
+          }
+        }
+      `}</style>
     </>
   )
 }
