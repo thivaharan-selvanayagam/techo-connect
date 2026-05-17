@@ -7,7 +7,7 @@ export const metadata = {
   keywords: 'yagi antenna Sri Lanka, 4G signal booster, LTE antenna, Dialog Mobitel SLT antenna booster',
   
   // ── 🌟 NEW: BASE DOMAIN URL FOR ABSOLUTE METADATA PREVIEWS ──
-  metadataBase: new URL('https://techoconnect.com.lk'),
+  metadataBase: new URL('https://connect.techotraders.com.lk'),
 
   // ── 🌟 NEW: EXPLICIT FAVICON CONFIGURATION MAPPINGS ──
   icons: {
