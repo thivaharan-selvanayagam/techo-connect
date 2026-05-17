@@ -334,7 +334,7 @@ export default function ProductDetail({ params }) {
                     <p style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.7 }}>If you don't receive any signal within 5 days of delivery (with proper outdoor installation), you can return the antenna. Photo evidence of installation required.</p>
                   </div>
                   <div style={{ background: 'white', border: '1px solid var(--border-light)', borderRadius: 12, padding: '1.5rem' }}>
-                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink)', marginBottom: '0.5rem' }}>6-Month Service Warranty</div>
+                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink)', marginBottom: '0.5rem' }}>12-Month Service Warranty</div>
                     <p style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.7 }}>We repair and return your antenna at no service charge. Only part replacement costs apply. No cash refunds under this warranty.</p>
                   </div>
                   <div style={{ gridColumn: '1 / -1', padding: '1rem 1.25rem', background: 'rgba(10,173,110,0.05)', border: '1px solid rgba(10,173,110,0.15)', borderRadius: 10, fontSize: '0.82rem', color: 'var(--muted)' }}>
@@ -386,7 +386,7 @@ export default function ProductDetail({ params }) {
                     <p style={{ fontSize: '0.82rem', color: 'var(--muted)', lineHeight: 1.6 }}>If you don't receive any signal within 5 days of delivery (with proper outdoor installation), you can return the antenna. Photo evidence of installation required.</p>
                   </div>
                   <div style={{ background: 'white', border: '1px solid var(--border-light)', borderRadius: 8, padding: '1rem' }}>
-                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)', marginBottom: '0.35rem' }}>6-Month Service Warranty</div>
+                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)', marginBottom: '0.35rem' }}>12-Month Service Warranty</div>
                     <p style={{ fontSize: '0.82rem', color: 'var(--muted)', lineHeight: 1.6 }}>We repair and return your antenna at no service charge. Only part replacement costs apply. No cash refunds under this warranty.</p>
                   </div>
                   <div style={{ padding: '0.85rem', background: 'rgba(10,173,110,0.05)', border: '1px solid rgba(10,173,110,0.15)', borderRadius: 8, fontSize: '0.82rem', color: 'var(--muted)', lineHeight: 1.5 }}>

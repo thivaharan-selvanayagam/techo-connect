@@ -5,9 +5,10 @@ import Link from 'next/link'
 import Nav from '../../../components/layout/Nav'
 import Footer from '../../../components/layout/Footer'
 import { useCartStore, useCheckoutStore } from '../../../store/cart'
-import { formatLKR, calcDelivery, BANK_DETAILS } from '../../../lib/utils'
+import { formatLKR, calcDelivery, BANK_DETAILS, BANK_DETAILS_2} from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
+
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -20,10 +21,17 @@ export default function PaymentPage() {
   const [placing, setPlacing] = useState(false)
   const fileRef = useRef()
 
+  // ── PROMO CODE FUNCTIONAL STATES ──
+  const [promoInput, setPromoInput] = useState('')
+  const [discount, setDiscount] = useState(0)
+  const [appliedCode, setAppliedCode] = useState(null)
+
   const totalWeight = items.reduce((s, i) => s + i.weight * i.qty, 0)
   const productTotal = items.reduce((s, i) => s + i.price * i.qty, 0)
   const delivery = calcDelivery(totalWeight)
-  const grandTotal = productTotal + delivery
+  
+  // Adjusted calculation boundary to factor in applied promo code discounts
+  const grandTotal = Math.max(0, (productTotal + delivery) - discount)
   const depositAmount = 500
 
   if (!customer?.name || items.length === 0) {
@@ -37,6 +45,82 @@ export default function PaymentPage() {
         <Footer />
       </>
     )
+  }
+
+  // ── REPAIRED SELF-DIAGNOSTIC PROMO CODE SYSTEM VALIDATION ──
+  const handleApplyPromo = async () => {
+    const code = promoInput.trim().toUpperCase()
+    if (!code) return
+
+    if (appliedCode) {
+      toast.error('A promo code has already been applied.')
+      return
+    }
+
+    const loadToast = toast.loading('Validating promo code...')
+
+    try {
+      const { data: promo, error } = await supabase
+        .from('promo_codes')
+        .select('*')
+        .eq('code', code)
+        .maybeSingle()
+
+      if (error) {
+        console.error('Supabase Query Exception:', error)
+        toast.error('Database connection error.', { id: loadToast })
+        return
+      }
+
+      if (!promo) {
+        toast.error('Invalid promo code. Please check your spelling.', { id: loadToast })
+        return
+      }
+
+      if (!promo.is_active) {
+        toast.error('This promo code is currently inactive.', { id: loadToast })
+        return
+      }
+
+      const rightNow = new Date().toISOString()
+      
+      if (rightNow < promo.start_date) {
+        toast.error('This promo campaign has not started yet.', { id: loadToast })
+        return
+      }
+
+      if (rightNow > promo.end_date) {
+        toast.error('This promo code has expired.', { id: loadToast })
+        return
+      }
+
+      if (promo.current_redemptions >= promo.max_redemptions) {
+        toast.error('This promo code has reached its usage limit.', { id: loadToast })
+        return
+      }
+
+      let calculatedDiscount = 0
+      if (promo.discount_type === 'percentage') {
+        calculatedDiscount = Math.round(productTotal * (promo.discount_value / 100))
+      } else if (promo.discount_type === 'fixed') {
+        calculatedDiscount = Math.min(productTotal, promo.discount_value)
+      }
+
+      setDiscount(calculatedDiscount)
+      setAppliedCode(code)
+      toast.success('Promo code applied successfully!', { id: loadToast })
+
+    } catch (err) {
+      console.error(err)
+      toast.error('Could not validate promo code. Please try again.', { id: loadToast })
+    }
+  }
+
+  const handleRemovePromo = () => {
+    setDiscount(0)
+    setAppliedCode(null)
+    setPromoInput('')
+    toast.success('Promo code removed.')
   }
 
   const handleFileChange = async (e) => {
@@ -95,6 +179,8 @@ export default function PaymentPage() {
           receiptUrl: null, 
           productTotal,
           deliveryCharge: delivery,
+          discountApplied: discount,
+          promoCode: appliedCode,
           grandTotal,
           totalWeight,
         }),
@@ -102,6 +188,25 @@ export default function PaymentPage() {
 
       if (!res.ok) throw new Error('Order creation failed')
       const { orderId, orderNumber } = await res.json()
+
+      if (appliedCode) {
+        try {
+          const { data: currentPromo } = await supabase
+            .from('promo_codes')
+            .select('current_redemptions')
+            .eq('code', appliedCode)
+            .maybeSingle()
+
+          if (currentPromo) {
+            await supabase
+              .from('promo_codes')
+              .update({ current_redemptions: currentPromo.current_redemptions + 1 })
+              .eq('code', appliedCode)
+          }
+        } catch (promoUpdErr) {
+          console.error('Non-blocking promo increment error:', promoUpdErr)
+        }
+      }
 
       const receiptUrl = await uploadReceipt(orderNumber)
 
@@ -121,6 +226,8 @@ export default function PaymentPage() {
             customer_address: customer.address,
             items: items,
             grand_total: grandTotal,
+            discount_applied: discount,
+            promo_code: appliedCode,
             payment_method: method
           },
           receiptUrl: receiptUrl 
@@ -138,7 +245,6 @@ export default function PaymentPage() {
     }
   }
 
-  // Shared inner content layout logic for order sidebar arrays
   const renderSidebarSummary = () => (
     <>
       <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)', marginBottom: '1.1rem' }}>Order Total</div>
@@ -148,8 +254,38 @@ export default function PaymentPage() {
           <span style={{ fontWeight: 600 }}>{formatLKR(item.price * item.qty)}</span>
         </div>
       ))}
+
+      <div style={{ borderTop: '1px solid var(--border-light)', marginTop: '0.75rem', paddingTop: '0.75rem' }}>
+        <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--slate)', marginBottom: '0.4rem', letterSpacing: '0.05em' }}>PROMO CODE</div>
+        {appliedCode ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(10, 173, 110, 0.06)', border: '1px solid var(--green)', padding: '0.4rem 0.6rem', borderRadius: '6px' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--green-dark)' }}>🎉 {appliedCode}</span>
+            <button onClick={handleRemovePromo} style={{ fontSize: '0.75rem', color: '#EF4444', fontWeight: 600, cursor: 'pointer' }}>Remove</button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
+            <input 
+              type="text" 
+              placeholder="Enter code" 
+              value={promoInput}
+              onChange={(e) => setPromoInput(e.target.value)}
+              style={{ flex: 1, padding: '0.4rem 0.6rem', border: '1px solid var(--border-light)', borderRadius: '6px', fontSize: '0.8rem', outline: 'none', textTransform: 'uppercase' }}
+            />
+            <button onClick={handleApplyPromo} className="btn btn-primary btn-sm" style={{ padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.78rem' }}>Apply</button>
+          </div>
+        )}
+      </div>
+
       <div style={{ borderTop: '1px solid var(--border-light)', marginTop: '0.75rem', paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--muted)' }}><span>Delivery</span><span>{formatLKR(delivery)}</span></div>
+        
+        {discount > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#0D9B6A', fontWeight: 600 }}>
+            <span>Promo Discount</span>
+            <span>-{formatLKR(discount)}</span>
+          </div>
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.15rem', color: 'var(--ink)', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-light)' }}>
           <span>Grand Total</span>
           <span style={{ color: 'var(--green)' }}>{formatLKR(method === 'bank' ? grandTotal : depositAmount)}</span>
@@ -161,7 +297,6 @@ export default function PaymentPage() {
     </>
   )
 
-  // Shared visual wrapper layout for file state rendering feedback
   const renderReceiptUploadBox = () => (
     <div>
       <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--slate)', marginBottom: '0.75rem' }}>
@@ -191,7 +326,6 @@ export default function PaymentPage() {
   return (
     <>
       <Nav />
-      {/* Hidden single node global hook controller file pointer safely accessible by both layouts */}
       <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" style={{ display: 'none' }} onChange={handleFileChange} />
 
       <div style={{ paddingTop: '5.5rem', background: 'var(--bg)', padding: '5.5rem 0 4rem' }}>
@@ -208,7 +342,7 @@ export default function PaymentPage() {
             <div className="step"><div className="step-num">4</div>Confirmation</div>
           </div>
 
-          {/* DESKTOP VIEW (100% Original styling metrics untouched) */}
+          {/* DESKTOP VIEW */}
           <div className="desktop-only">
             <div className="payment-layout">
               <div className="main-content">
@@ -247,14 +381,26 @@ export default function PaymentPage() {
                     <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, padding: '1.25rem', marginBottom: '1.5rem' }}>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#92400E', marginBottom: '0.5rem' }}>⚠️ COD Deposit Required</div>
                       <p style={{ fontSize: '0.85rem', color: '#78350F', lineHeight: 1.7, marginBottom: '0.75rem' }}>
-                        To confirm a Cash on Delivery order, you must first deposit <strong>LKR 500</strong> to our bank account below. This deposit goes towards your final payment on delivery.
+                        To confirm a Cash on Delivery order, you must first deposit <strong>LKR 500</strong> to one of our bank accounts below. This deposit goes towards your final payment on delivery.
                       </p>
-                      <div style={{ background: 'white', borderRadius: 8, padding: '1rem', fontSize: '0.85rem', lineHeight: 1.8 }}>
-                        <div><strong>Bank:</strong> {BANK_DETAILS.bank}</div>
-                        <div><strong>Branch:</strong> {BANK_DETAILS.branch}</div>
-                        <div><strong>Account Name:</strong> {BANK_DETAILS.accountName}</div>
-                        <div><strong>Account No:</strong> {BANK_DETAILS.accountNumber}</div>
-                        <div style={{ marginTop: '0.4rem', fontSize: '0.78rem', color: 'var(--muted)' }}>Deposit exactly <strong>LKR 500</strong> as confirmation deposit</div>
+                      <div style={{ background: 'white', borderRadius: 8, padding: '1rem', fontSize: '0.85rem', lineHeight: 1.8, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {/* Account 1 */}
+                        <div>
+                          <div style={{ borderBottom: '1px dashed var(--border-light)', fontWeight: 700, color: 'var(--ink)', paddingBottom: '0.2rem', marginBottom: '0.4rem' }}>Bank Option 1</div>
+                          <div><strong>Bank:</strong> {BANK_DETAILS.bank}</div>
+                          <div><strong>Branch:</strong> {BANK_DETAILS.branch}</div>
+                          <div><strong>Account Name:</strong> {BANK_DETAILS.accountName}</div>
+                          <div><strong>Account No:</strong> {BANK_DETAILS.accountNumber}</div>
+                        </div>
+                        {/* Account 2 */}
+                        <div>
+                          <div style={{ borderBottom: '1px dashed var(--border-light)', fontWeight: 700, color: 'var(--ink)', paddingBottom: '0.2rem', marginBottom: '0.4rem' }}>Bank Option 2</div>
+                          <div><strong>Bank:</strong> {BANK_DETAILS_2.bank}</div>
+                          <div><strong>Branch:</strong> {BANK_DETAILS_2.branch}</div>
+                          <div><strong>Account Name:</strong> {BANK_DETAILS_2.accountName}</div>
+                          <div><strong>Account No:</strong> {BANK_DETAILS_2.accountNumber}</div>
+                        </div>
+                        <div style={{ borderTop: '1px solid var(--border-light)', marginTop: '0.4rem', paddingTop: '0.4rem', fontSize: '0.78rem', color: 'var(--muted)' }}>Deposit exactly <strong>LKR 500</strong> as confirmation deposit</div>
                       </div>
                     </div>
                   )}
@@ -262,11 +408,23 @@ export default function PaymentPage() {
                   {method === 'bank' && (
                     <div style={{ background: 'rgba(10,173,110,0.05)', border: '1px solid var(--border)', borderRadius: 12, padding: '1.25rem', marginBottom: '1.5rem' }}>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--green-dark)', marginBottom: '0.5rem' }}>🏦 Bank Account Details</div>
-                      <div style={{ background: 'white', borderRadius: 8, padding: '1rem', fontSize: '0.85rem', lineHeight: 1.8, marginBottom: '0.75rem' }}>
-                        <div><strong>Bank:</strong> {BANK_DETAILS.bank}</div>
-                        <div><strong>Branch:</strong> {BANK_DETAILS.branch}</div>
-                        <div><strong>Account Name:</strong> {BANK_DETAILS.accountName}</div>
-                        <div><strong>Account No:</strong> {BANK_DETAILS.accountNumber}</div>
+                      <div style={{ background: 'white', borderRadius: 8, padding: '1rem', fontSize: '0.85rem', lineHeight: 1.8, marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {/* Account 1 */}
+                        <div>
+                          <div style={{ borderBottom: '1px dashed var(--border-light)', fontWeight: 700, color: 'var(--ink)', paddingBottom: '0.2rem', marginBottom: '0.4rem' }}>Bank Option 1</div>
+                          <div><strong>Bank:</strong> {BANK_DETAILS.bank}</div>
+                          <div><strong>Branch:</strong> {BANK_DETAILS.branch}</div>
+                          <div><strong>Account Name:</strong> {BANK_DETAILS.accountName}</div>
+                          <div><strong>Account No:</strong> {BANK_DETAILS.accountNumber}</div>
+                        </div>
+                        {/* Account 2 */}
+                        <div>
+                          <div style={{ borderBottom: '1px dashed var(--border-light)', fontWeight: 700, color: 'var(--ink)', paddingBottom: '0.2rem', marginBottom: '0.4rem' }}>Bank Option 2</div>
+                          <div><strong>Bank:</strong> {BANK_DETAILS_2.bank}</div>
+                          <div><strong>Branch:</strong> {BANK_DETAILS_2.branch}</div>
+                          <div><strong>Account Name:</strong> {BANK_DETAILS_2.accountName}</div>
+                          <div><strong>Account No:</strong> {BANK_DETAILS_2.accountNumber}</div>
+                        </div>
                         <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-light)' }}>
                           <div><strong>Deposit Amount:</strong> <span style={{ color: 'var(--green)', fontWeight: 700 }}>{formatLKR(grandTotal)}</span></div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>({formatLKR(productTotal)} + {formatLKR(delivery)} delivery )</div>
@@ -294,27 +452,24 @@ export default function PaymentPage() {
             </div>
           </div>
 
-          {/* MOBILE VIEW (Independent fluid single column architecture) */}
+          {/* MOBILE VIEW */}
           <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
-            {/* Context Total Box at Top */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.25rem' }}>
               {renderSidebarSummary()}
             </div>
 
-            {/* Delivery address banner display summary */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1rem 1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
                 <div>
                   <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.2rem' }}>Delivering To</div>
                   <strong style={{ fontSize: '0.875rem', color: 'var(--ink)' }}>{customer.name}</strong>
-                  <div style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.1rem', lineHeight: 1.3 }}>{customer.address}, {customer.district}</div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.1 Grams', lineHeight: 1.3 }}>{customer.address}, {customer.district}</div>
                 </div>
                 <Link href="/checkout/address" style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600, shrink: 0 }}>Edit</Link>
               </div>
             </div>
 
-            {/* Core payment mechanism selection cards list */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.25rem' }}>
               <h2 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.2rem', color: 'var(--ink)', marginBottom: '1rem' }}>Choose Payment Method</h2>
               
@@ -336,17 +491,25 @@ export default function PaymentPage() {
                 </button>
               </div>
 
-              {/* Dynamic instruction render blocks with customized safe padding values */}
               {method === 'cod' && (
                 <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 10, padding: '1rem', marginBottom: '1.25rem' }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#92400E', marginBottom: '#0.35rem' }}>⚠️ COD Deposit Required</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#92400E', marginBottom: '0.35rem' }}>⚠️ COD Deposit Required</div>
                   <p style={{ fontSize: '0.82rem', color: '#78350F', lineHeight: 1.5, marginBottom: '0.75rem' }}>
-                    To confirm a Cash on Delivery order, you must first deposit <strong>LKR 500</strong> to our bank account. This deposit goes towards your final payment on delivery.
+                    To confirm a Cash on Delivery order, you must first deposit <strong>LKR 500</strong> to one of our bank accounts. This deposit goes towards your final payment on delivery.
                   </p>
-                  <div style={{ background: 'white', borderRadius: 6, padding: '0.85rem', fontSize: '0.82rem', lineHeight: 1.6 }}>
-                    <div><strong>Bank:</strong> {BANK_DETAILS.bank}</div>
-                    <div><strong>Account Name:</strong> {BANK_DETAILS.accountName}</div>
-                    <div><strong>Account No:</strong> {BANK_DETAILS.accountNumber}</div>
+                  <div style={{ background: 'white', borderRadius: 6, padding: '0.85rem', fontSize: '0.82rem', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div>
+                      <div style={{ borderBottom: '1px dashed var(--border-light)', fontWeight: 700, color: 'var(--ink)' }}>Bank Option 1</div>
+                      <div><strong>Bank:</strong> {BANK_DETAILS.bank}</div>
+                      <div><strong>Account Name:</strong> {BANK_DETAILS.accountName}</div>
+                      <div><strong>Account No:</strong> {BANK_DETAILS.accountNumber}</div>
+                    </div>
+                    <div>
+                      <div style={{ borderBottom: '1px dashed var(--border-light)', fontWeight: 700, color: 'var(--ink)' }}>Bank Option 2</div>
+                      <div><strong>Bank:</strong> {BANK_DETAILS_2.bank}</div>
+                      <div><strong>Account Name:</strong> {BANK_DETAILS_2.accountName}</div>
+                      <div><strong>Account No:</strong> {BANK_DETAILS_2.accountNumber}</div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -354,11 +517,20 @@ export default function PaymentPage() {
               {method === 'bank' && (
                 <div style={{ background: 'rgba(10,173,110,0.05)', border: '1px solid rgba(10,173,110,0.15)', borderRadius: 10, padding: '1rem', marginBottom: '1.25rem' }}>
                   <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--green-dark)', marginBottom: '0.35rem' }}>🏦 Bank Account Details</div>
-                  <div style={{ background: 'white', borderRadius: 6, padding: '0.85rem', fontSize: '0.82rem', lineHeight: 1.6, marginBottom: '0.5rem' }}>
-                    <div><strong>Bank:</strong> {BANK_DETAILS.bank}</div>
-                    <div><strong>Account Name:</strong> {BANK_DETAILS.accountName}</div>
-                    <div><strong>Account No:</strong> {BANK_DETAILS.accountNumber}</div>
-                    <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', marginTop: '0.5rem', paddingTop: '0.5rem', fontWeight: 700 }}>
+                  <div style={{ background: 'white', borderRadius: 6, padding: '0.85rem', fontSize: '0.82rem', lineHeight: 1.6, marginBottom: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div>
+                      <div style={{ borderBottom: '1px dashed var(--border-light)', fontWeight: 700, color: 'var(--ink)' }}>Bank Option 1</div>
+                      <div><strong>Bank:</strong> {BANK_DETAILS.bank}</div>
+                      <div><strong>Account Name:</strong> {BANK_DETAILS.accountName}</div>
+                      <div><strong>Account No:</strong> {BANK_DETAILS.accountNumber}</div>
+                    </div>
+                    <div>
+                      <div style={{ borderBottom: '1px dashed var(--border-light)', fontWeight: 700, color: 'var(--ink)' }}>Bank Option 2</div>
+                      <div><strong>Bank:</strong> {BANK_DETAILS_2.bank}</div>
+                      <div><strong>Account Name:</strong> {BANK_DETAILS_2.accountName}</div>
+                      <div><strong>Account No:</strong> {BANK_DETAILS_2.accountNumber}</div>
+                    </div>
+                    <div style={{ borderTop: '1px solid var(--border-light)', marginTop: '0.5rem', paddingTop: '0.5rem', fontWeight: 700 }}>
                       Deposit: <span style={{ color: 'var(--green)' }}>{formatLKR(grandTotal)}</span>
                     </div>
                   </div>
@@ -373,7 +545,6 @@ export default function PaymentPage() {
               )}
             </div>
 
-            {/* Mobile submission terminal panel layout links */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
               <button onClick={handlePlaceOrder} disabled={placing || !method || !receipt} className="btn btn-primary" style={{ width: '100%', padding: '0.8rem', opacity: (placing || !method || !receipt) ? 0.6 : 1 }}>
                 {placing ? 'Placing Order...' : 'Confirm & Place Order'}
@@ -389,7 +560,6 @@ export default function PaymentPage() {
       </div>
       <Footer />
 
-      {/* COMPACT STYLED JSX RESPONSIVE CONTROLS */}
       <style jsx>{`
         .payment-layout {
           display: grid;

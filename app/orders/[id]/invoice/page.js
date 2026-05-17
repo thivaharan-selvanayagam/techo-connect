@@ -56,7 +56,7 @@ export default function InvoicePage() {
       const html2pdf = (await import('html2pdf.js')).default
 
       const options = {
-        margin:       [8, 12, 8, 12], // Trimmed printing margins to maximize vertical sheet real estate
+        margin:       [10, 15, 10, 15], 
         filename:     `TechoConnect_Invoice_${order.order_number}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, logging: false },
@@ -102,10 +102,16 @@ export default function InvoicePage() {
 
   const purchaseDate = new Date(order.created_at).toLocaleDateString()
 
+  // ── BULLETPROOF PROMO CODE DETECTION FALLBACK ──
+  // If discount columns are empty, dynamically subtract grand_total from item totals to find the gap
+  const calculatedDeduction = Math.max(0, (order.product_total + order.delivery_charge) - order.grand_total)
+  const promoDiscount = order.discount_applied || order.discount || calculatedDeduction
+  const promoCode = order.promo_code || (promoDiscount > 0 ? "PROMO" : null)
+
   return (
     <div className="invoice-page-bg">
       
-      {/* ── DESKTOP ONLY VIEW (100% Original and Completely Unchanged) ── */}
+      {/* ── DESKTOP ONLY VIEW ── */}
       <div className="view-desktop">
         {/* TOOLBAR */}
         <div className="invoice-toolbar no-print">
@@ -144,7 +150,7 @@ export default function InvoicePage() {
                 </p>
               </div>
               <div className="header-right">
-                <div className="label" style={{ marginBottom: '0.25rem' }}>Official Invoice</div>
+                <div className="inv-label">Official Invoice</div>
                 <h1 className="invoice-no">#{order.order_number}</h1>
                 <div className={`badge ${isCOD ? 'badge-orange' : 'badge-green'}`} style={{ marginTop: '0.4rem' }}>
                   {isCOD ? 'Deposit Confirmed' : 'Fully Paid'}
@@ -213,6 +219,12 @@ export default function InvoicePage() {
                       <span>Subtotal Invoice</span>
                       <span>{formatLKR(order.product_total + order.delivery_charge)}</span>
                     </div>
+                    {promoDiscount > 0 && (
+                      <div className="summary-row" style={{ color: '#0D9B6A', fontWeight: 600 }}>
+                        <span>Promo Discount {promoCode && `(${promoCode})`}</span>
+                        <span>-{formatLKR(promoDiscount)}</span>
+                      </div>
+                    )}
                     <div className="summary-row" style={{ color: '#B91C1C' }}>
                       <span>Confirmation Deposit</span>
                       <span>-{formatLKR(order.deposit_amount || 500)}</span>
@@ -225,7 +237,17 @@ export default function InvoicePage() {
                   </>
                 ) : (
                   <>
-                    <div className="summary-row grand-total" style={{ borderTop: 'none', paddingTop: 0 }}>
+                    <div className="summary-row">
+                      <span>Subtotal Invoice</span>
+                      <span>{formatLKR(order.product_total + order.delivery_charge)}</span>
+                    </div>
+                    {promoDiscount > 0 && (
+                      <div className="summary-row" style={{ color: '#0D9B6A', fontWeight: 600 }}>
+                        <span>Promo Discount {promoCode && `(${promoCode})`}</span>
+                        <span>-{formatLKR(promoDiscount)}</span>
+                      </div>
+                    )}
+                    <div className="summary-row grand-total">
                       <span>Total Amount Paid</span>
                       <span>{formatLKR(order.grand_total)}</span>
                     </div>
@@ -258,10 +280,10 @@ export default function InvoicePage() {
         </div>
       </div>
 
-      {/* ── MOBILE ONLY VIEW (Clean Stacker UI Alternative) ── */}
+      {/* ── MOBILE ONLY VIEW ── */}
       <div className="view-mobile no-print">
         {/* Mobile Sticky Action Bar */}
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'white', borderBottom: '1px solid var(--border-light)', padding: '0.75rem 1rem', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '0.5rem', boxHyphen: 'var(--shadow-sm)' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'white', borderBottom: '1px solid var(--border-light)', padding: '0.75rem 1rem', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '0.5rem', boxShadow: 'var(--shadow-sm)' }}>
           <Link href="/checkout/confirm" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted)' }}>&larr; Back to Confirmation</Link>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
             <button onClick={handleDownloadPDF} disabled={downloading} className="btn btn-primary btn-sm" style={{ padding: '0.6rem', fontSize: '0.85rem' }}>
@@ -275,7 +297,7 @@ export default function InvoicePage() {
         <div style={{ padding: '5.5rem 1rem 2rem' }}>
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.25rem', boxShadow: 'var(--shadow-card)' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--surface)', paddingBottom: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <div className="nav__logo-icon" style={{ width: '28px', height: '28px', borderRadius: '6px' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -300,7 +322,7 @@ export default function InvoicePage() {
               <div style={{ color: 'var(--muted)', marginTop: '0.15rem' }}>{order.customer_phone1}</div>
             </div>
 
-            <div style={{ fontSize: '0.85rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '0.75rem' }}>
+            <div style={{ fontSize: '0.85rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--surface)', paddingBottom: '0.75rem' }}>
               <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--light-text)', marginBottom: '0.15rem' }}>Payment Method</span>
               <strong style={{ color: 'var(--ink)' }}>{isCOD ? 'Cash on Delivery (COD)' : 'Bank Deposit'}</strong>
             </div>
@@ -309,7 +331,7 @@ export default function InvoicePage() {
               <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--light-text)', marginBottom: '0.5rem' }}>Line Items</span>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {order.items.map((item, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', fontSize: '0.85rem', gap: '0.5rem', borderBottom: '1px dashed rgba(0,0,0,0.05)', paddingBottom: '0.5rem' }}>
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', fontSize: '0.85rem', gap: '0.5rem', borderBottom: '1px dashed var(--surface)', paddingBottom: '0.5rem' }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.name}</div>
                       {item.variant && <div style={{ fontSize: '0.75rem', color: 'var(--green)', marginTop: '0.1rem' }}>{item.variant}</div>}
@@ -335,12 +357,17 @@ export default function InvoicePage() {
                 </div>
               )}
 
-              <div style={{ borderTop: '1px solid rgba(0,0,0,0.04)', paddingTop: '0.75rem' }}>
+              <div style={{ borderTop: '1px solid var(--surface)', paddingTop: '0.75rem' }}>
                 {isCOD ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.875rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--slate)' }}>
                       <span>Invoice Subtotal:</span><span>{formatLKR(order.product_total + order.delivery_charge)}</span>
                     </div>
+                    {promoDiscount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0D9B6A', fontWeight: 600 }}>
+                        <span>Promo Discount {promoCode && `(${promoCode})`}:</span><span>-{formatLKR(promoDiscount)}</span>
+                      </div>
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B91C1C' }}>
                       <span>COD Deposit Paid:</span><span>-{formatLKR(order.deposit_amount || 500)}</span>
                     </div>
@@ -350,9 +377,19 @@ export default function InvoicePage() {
                     <p style={{ fontSize: '0.72rem', color: 'var(--muted)', fontStyle: 'italic', marginTop: '0.2rem', textAlign: 'right' }}>* Collectible in cash upon courier arrival.</p>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate)' }}>Total Amount Paid:</span>
-                    <strong style={{ fontSize: '1.2rem', color: 'var(--green)', fontFamily: 'var(--font-head)' }}>{formatLKR(order.grand_total)}</strong>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--slate)', fontSize: '0.875rem' }}>
+                      <span>Invoice Subtotal:</span><span>{formatLKR(order.product_total + order.delivery_charge)}</span>
+                    </div>
+                    {promoDiscount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0D9B6A', fontWeight: 600, fontSize: '0.875rem' }}>
+                        <span>Promo Discount {promoCode && `(${promoCode})`}:</span><span>-{formatLKR(promoDiscount)}</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-light)', paddingTop: '0.4rem', marginTop: '0.2rem' }}>
+                      <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate)' }}>Total Amount Paid:</span>
+                      <strong style={{ fontSize: '1.2rem', color: 'var(--green)', fontFamily: 'var(--font-head)' }}>{formatLKR(order.grand_total)}</strong>
+                    </div>
                   </div>
                 )}
               </div>
@@ -377,7 +414,6 @@ export default function InvoicePage() {
         
         .invoice-container { max-width: 840px; margin: 0 auto; padding: 0 1.5rem; }
         
-        /* Tightened vertical padding aggressively to guarantee single page execution */
         .invoice-paper { 
           background: var(--white); 
           padding: 2.2rem 3.5rem; 
@@ -388,21 +424,38 @@ export default function InvoicePage() {
           break-inside: avoid;
         }
         
-        /* REPAIRED: Strict width control + flex protection prevents overlapping elements */
         .invoice-header { 
-          display: flex; 
-          justify-content: space-between; 
-          align-items: flex-start;
-          gap: 2rem; 
+          display: grid;
+          grid-template-columns: 1.3fr 1fr;
+          align-items: start;
+          gap: 1.5rem; 
           border-bottom: 2px solid var(--surface); 
           padding-bottom: 1.25rem; 
           margin-bottom: 1.5rem; 
         }
-        .header-left { flex: 1; min-width: 0; }
-        .header-right { flex-shrink: 0; text-align: right; }
+        .header-left { width: 100%; }
+        .header-right { text-align: right; width: 100%; }
+
+        .inv-label {
+          font-family: var(--font-body);
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--green);
+        }
 
         .company-info { font-size: 0.85rem; color: var(--muted); line-height: 1.5; margin-top: 0.3rem; }
-        .invoice-no { font-family: var(--font-head); font-weight: 800; font-size: 1.5rem; color: var(--ink); margin: 0; line-height: 1.2; }
+        
+        .invoice-no { 
+          font-family: var(--font-head); 
+          font-weight: 800; 
+          font-size: 1.4rem; 
+          color: var(--ink); 
+          margin: 0.15rem 0 0; 
+          line-height: 1.2; 
+          word-break: break-all;
+        }
         
         .invoice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 1.5rem; }
         .small-label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--light-text); margin-bottom: 0.3rem; }
@@ -429,19 +482,16 @@ export default function InvoicePage() {
         .legal-links :hover { text-decoration: underline; }
         .legal-links-print { display: none; font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
         
-        /* Pulled up margins to guarantee footer stays on page 1 */
-        .invoice-footer { border-top: 1px solid var(--surface); margin-top: 2rem; padding-top: 1rem; text-align: center; font-size: 0.8rem; color: var(--light-text); }
+        .invoice-footer { border-top: 1px solid var(--surface); margin-top: 1.75rem; padding-top: 1rem; text-align: center; font-size: 0.8rem; color: var(--light-text); }
         .loader { height: 100vh; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 600; color: var(--green); }
         
         .print-only { display: none !important; }
 
-        /* Conditional Layout Core Screen Viewport Control Toggles */
         @media (min-width: 769px) {
           .view-mobile { display: none !important; }
         }
         
         @media (max-width: 768px) {
-          /* Locks desktop layout offscreen so print scripts can extract its untouched dimensions */
           .view-desktop {
             position: absolute !important;
             left: -9999px !important;
