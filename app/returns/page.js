@@ -29,7 +29,7 @@ export default function Returns() {
           <div className="page-hero__label">Techo Connect / Legal</div>
           <h1 className="page-hero__title">Returns &amp; Refunds<br /><em>Policy</em></h1>
           <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginTop: '0.75rem', position: 'relative', zIndex: 2 }}>
-            Effective Date: <strong>18 January 2026</strong>
+            Effective Date: <strong>18 April 2026</strong>
           </p>
         </div>
       </section>
@@ -81,7 +81,7 @@ export default function Returns() {
               <p>Approved refunds will be processed within <strong>3 working days</strong> after the return parcel is received and inspected at our facility.</p>
             </Section>
 
-            <Section title="3. 6-Month Service Warranty">
+            <Section title="3. 12-Month Service Warranty">
               <div style={{ background: 'rgba(10,173,110,0.05)', border: '1px solid rgba(10,173,110,0.15)', borderRadius: 10, padding: '1.25rem', marginBottom: '1rem' }}>
                 <ul style={{ margin: 0 }}>
                   <li>✅ <strong>No refunds</strong> are provided under this warranty.</li>
