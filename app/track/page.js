@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabase'
 import { formatLKR } from '../../lib/utils'
 import toast from 'react-hot-toast'
 
-// ── 🌟 LIVE STRING PARSER: CONVERTS JARGON TO PROFESSIONAL UPDATES ──
+// ── LIVE STRING PARSER: CONVERTS JARGON TO PROFESSIONAL UPDATES ──
 function formatShortStatus(rawText) {
   if (!rawText) return { title: 'Status Update', desc: '' };
   
@@ -23,7 +23,6 @@ function formatShortStatus(rawText) {
     return { title: '🔄 In Transit', desc: 'Dispatched to central transit hub sorting facility.' };
   }
   
-  // Extracts the Hub name dynamically from the string pattern
   if (text.includes('received to hub')) {
     const hubMatch = rawText.match(/hub\s+([A-Za-z\s]+)\s*\(/i);
     const hubName = hubMatch ? hubMatch[1].trim() : 'Local Hub';
@@ -37,7 +36,6 @@ function formatShortStatus(rawText) {
     return { title: '🎉 Delivered Successfully', desc: 'Hardware safely handed over to the customer.' };
   }
 
-  // Fallback protection system (truncates anything past the first separator pipe symbol '|')
   return { title: rawText.split('|')[0].trim(), desc: '' };
 }
 
@@ -47,7 +45,7 @@ export default function TrackPage() {
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
-  // ── Typesafe Fallback Lookup Engine ──
+  // ── 🎉 FIXED: PURE TEXT SEARCH ROUTE FOR YOUR SQL SCHEMA ──
   const handleSearch = async (e) => {
     e.preventDefault()
     const query = searchQuery.trim().toUpperCase()
@@ -58,33 +56,18 @@ export default function TrackPage() {
     setOrder(null)
 
     try {
-      let matchedOrder = null
-      let queryError = null
+      // 1. Search directly as a text string to match your 'text' order_number column format
+      const { data: matchedByOrder, error: orderError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('order_number', query)
+        .maybeSingle()
 
-      // Step 1: Query matching parameters against Order Number first
-      if (!isNaN(query)) {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('order_number', parseInt(query, 10))
-          .maybeSingle()
-        
-        matchedOrder = data
-        queryError = error
-      } else {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('order_number', query)
-          .maybeSingle()
+      if (orderError) throw orderError
 
-        matchedOrder = data
-        queryError = error
-      }
+      let matchedOrder = matchedByOrder
 
-      if (queryError) throw queryError
-
-      // Step 2: Fallback query matching path route check against tracking_number column rows
+      // 2. Fallback: If no match found by order number, check the tracking_number text column
       if (!matchedOrder) {
         const { data: trackingData, error: trackingError } = await supabase
           .from('orders')
@@ -98,9 +81,9 @@ export default function TrackPage() {
 
       if (matchedOrder) {
         setOrder(matchedOrder)
-        toast.success('Tracking information updated!');
+        toast.success('Tracking data loaded!')
       } else {
-        toast.error('No matching records found.');
+        toast.error('No matching records found. Please double-check your number.')
       }
     } catch (err) {
       console.error('Tracking fetch error:', err)
@@ -121,7 +104,7 @@ export default function TrackPage() {
       <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', maxWidth: '460px', margin: '0 auto' }}>
         <input 
           type="text" 
-          placeholder="e.g. TC-1002 or 1234567" 
+          placeholder="e.g. 11044773 or CCP barcode" 
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ flex: 1, padding: '0.75rem 1rem', border: '1px solid var(--border-light)', borderRadius: '8px', fontSize: '0.9rem', outline: 'none', textTransform: 'uppercase' }}
@@ -140,7 +123,7 @@ export default function TrackPage() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         
-        {/* TOP META LINE BAR RECIEPT */}
+        {/* TOP META LINE BAR */}
         <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ fontSize: '0.85rem' }}>
             <span style={{ color: 'var(--muted)', marginRight: '0.5rem' }}>Order Reference:</span>
@@ -172,7 +155,6 @@ export default function TrackPage() {
 
                     return (
                       <div key={idx} style={{ position: 'relative', fontSize: '0.82rem' }}>
-                        {/* Dynamic Progress Timeline Connect Node Tracking Points */}
                         <div style={{ 
                           position: 'absolute', 
                           left: '-1.725rem', 
@@ -217,7 +199,7 @@ export default function TrackPage() {
           {/* RIGHT SIDE DETAILS COLUMN PANELS */}
           <div style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
-            {/* COMPACT SHIPPING PROFILE COMPONENT */}
+            {/* SHIPPING PROFILE COMPONENT */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1rem' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.4rem', borderBottom: '1px solid var(--bg)', paddingBottom: '0.25rem' }}>
                 Delivery Destination
@@ -230,7 +212,7 @@ export default function TrackPage() {
               </div>
             </div>
 
-            {/* COMPACT ACCOUNTING TRANSACTIONS COMPONENT */}
+            {/* ACCOUNTING TRANSACTIONS COMPONENT */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1rem' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.5rem', borderBottom: '1px solid var(--bg)', paddingBottom: '0.25rem' }}>
                 Receipt Breakdown
@@ -250,7 +232,7 @@ export default function TrackPage() {
           </div>
         </div>
 
-        {/* TRACK RESET LAYOUT CTA CONTROL LINK ENTRY */}
+        {/* RESET CONTROL LINK */}
         <button 
           onClick={() => { setHasSearched(false); setOrder(null); setSearchQuery(''); }} 
           className="btn btn-ghost" 
