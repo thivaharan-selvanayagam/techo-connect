@@ -8,63 +8,106 @@ const supabaseAdmin = createClient(
 
 export async function POST(req) {
   try {
-    // Parse incoming data parameters as form data format
-    const formData = await req.formData()
-    
-    const waybill_id = formData.get('waybill_id')
-    const last_update_time = formData.get('last_update_time')
-    
-    // ── 🌟 FIXED: SAFE RESOLUTION FOR FARDAR DOCUMENTATION TYPOS ──
-    const delivery_status = formData.get('delivery_status') || formData.get('current_status')
+    const { orderNumber, stickerNumber } = await req.json()
 
-    if (!waybill_id) {
-      return NextResponse.json({ error: 'Missing Tracking ID parameter' }, { status: 400 })
+    if (!orderNumber || !stickerNumber) {
+      return NextResponse.json({ error: 'Missing order number or waybill ID' }, { status: 400 })
     }
 
-    // 1. Fetch current history data array logs from Supabase
+    // 1. Fetch order safely by matching your text-based order_number column
     const { data: order, error: fetchError } = await supabaseAdmin
       .from('orders')
-      .select('courier_history')
-      .eq('tracking_number', waybill_id.trim().toUpperCase())
+      .select('*')
+      .eq('order_number', orderNumber.trim().toUpperCase())
       .maybeSingle()
 
     if (fetchError || !order) {
-      return NextResponse.json({ error: 'Waybill reference mismatch mapping target not found' }, { status: 404 })
+      return NextResponse.json({ error: `Order ${orderNumber} could not be found.` }, { status: 404 })
     }
 
-    // 2. Build and sanitize new event log payload metrics
-    const incomingLog = { 
-      status: delivery_status || 'Package Movement Logged', 
-      time: last_update_time || new Date().toISOString() 
+    // Generate dynamic item descriptions from your jsonb items array
+    let dynamicDescription = 'Techo Connect Signal Hardware'
+    if (order.items && Array.isArray(order.items)) {
+      dynamicDescription = order.items
+        .map(item => {
+          const variant = item.variant || item.variantName
+          const variantString = variant ? ` (${variant})` : ''
+          return `${item.name}${variantString} x${item.qty}`
+        })
+        .join(', ')
     }
 
-    const updatedHistory = [
-      ...(Array.isArray(order.courier_history) ? order.courier_history : []),
-      incomingLog
-    ]
+    if (dynamicDescription.length > 180) {
+      dynamicDescription = dynamicDescription.substring(0, 177) + '...'
+    }
 
-    // 3. Commit state arrays back into the database row columns
-    const { error: updateError } = await supabaseAdmin
-      .from('orders')
-      .update({
-        courier_status: delivery_status || 'In Transit',
-        courier_history: updatedHistory
-      })
-      .eq('tracking_number', waybill_id.trim().toUpperCase())
+    // 2. Dispatch data payload to Fardar Express Gateway
+    const fardarFormPayload = new URLSearchParams()
+    fardarFormPayload.append('api_key', process.env.FARDAR_API_KEY)
+    fardarFormPayload.append('client_id', process.env.FARDAR_CLIENT_ID)
+    fardarFormPayload.append('waybill_id', stickerNumber.trim().toUpperCase())
+    fardarFormPayload.append('order_id', String(order.order_number))
+    fardarFormPayload.append('parcel_weight', '1') 
+    fardarFormPayload.append('parcel_description', dynamicDescription)
+    fardarFormPayload.append('recipient_name', order.customer_name)
+    fardarFormPayload.append('recipient_contact_1', order.customer_phone1)
+    fardarFormPayload.append('recipient_contact_2', order.customer_phone2 || '')
+    fardarFormPayload.append('recipient_address', order.customer_address)
+    fardarFormPayload.append('recipient_city', order.customer_district)
+    fardarFormPayload.append('amount', String(order.grand_total))
+    fardarFormPayload.append('exchange', '0')
 
-    if (updateError) throw updateError
-
-    // 4. Return successful verification response with Fardar origin whitelist headers
-    return new NextResponse(JSON.stringify({ success: true, message: 'Sync Complete' }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': 'https://www.fdedomestic.com',
-      }
+    const fardarResponse = await fetch('https://www.fdedomestic.com/api/parcel/existing_waybill_api_v1.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: fardarFormPayload.toString()
     })
 
+    const result = await fardarResponse.json()
+    const responseStatus = String(result.status)
+
+    if (responseStatus === '200') {
+      
+      // ── 🌟 NEW: INSTANTLY SEED THE FIRST TRACKING STEP SO IT IS NEVER BLANK ──
+      const initialHistoryLog = [
+        {
+          status: `Add a CCP Parcel By Warehouse System | Client - Techo Connect`,
+          time: new Date().toISOString(),
+          description: 'Package registered and manifest successfully transmitted to Fardar Express.'
+        }
+      ]
+
+      const { data: updatedRows, error: updateError } = await supabaseAdmin
+        .from('orders')
+        .update({
+          tracking_number: stickerNumber.trim().toUpperCase(),
+          courier_status: 'Parcel Registered',
+          courier_history: initialHistoryLog, // Save the initial step here
+          status: 'shipped'
+        })
+        .eq('order_number', order.order_number)
+        .select() 
+
+      if (updateError) throw updateError
+
+      if (!updatedRows || updatedRows.length === 0) {
+        return NextResponse.json({ error: 'Database record failed to lock and update.' }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, waybill: stickerNumber })
+    } 
+    else {
+      let friendlyMessage = `Fardar API Error (${responseStatus})`
+      if (responseStatus === '201') friendlyMessage = "Incorrect sticker type! Fardar API only accepts CRE or CCP barcodes."
+      if (responseStatus === '202') friendlyMessage = "This waybill sticker has already been used on another parcel."
+      if (responseStatus === '203') friendlyMessage = "This barcode number hasn't been assigned to your client account yet."
+      if (responseStatus === '213') friendlyMessage = "Fardar rejected the District name."
+
+      return NextResponse.json({ error: friendlyMessage }, { status: 422 })
+    }
+
   } catch (err) {
-    console.error('Fardar Webhook System Error Exception:', err)
-    return NextResponse.json({ error: 'Internal processing runtime crash' }, { status: 500 })
+    console.error('Outbound courier handler error:', err)
+    return NextResponse.json({ error: 'Internal server pipeline error' }, { status: 500 })
   }
 }
