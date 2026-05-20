@@ -8,17 +8,23 @@ const supabaseAdmin = createClient(
 
 export async function POST(req) {
   try {
-    const { orderNumber, stickerNumber } = await req.json()
+    const body = await req.json()
+
+    // ── 🌟 UNIVERSAL PAYLOAD KEY EXTRACTION (PREVENTS 400 ERRORS) ──
+    const orderNumber = body.orderNumber || body.order_number || body.orderId;
+    const stickerNumber = body.stickerNumber || body.sticker_number || body.waybill_id;
 
     if (!orderNumber || !stickerNumber) {
-      return NextResponse.json({ error: 'Missing order number or waybill ID' }, { status: 400 })
+      return NextResponse.json({ 
+        error: `Missing parameters. Received orderNumber: ${orderNumber}, stickerNumber: ${stickerNumber}` 
+      }, { status: 400 })
     }
 
     // 1. Fetch order safely by matching your text-based order_number column
     const { data: order, error: fetchError } = await supabaseAdmin
       .from('orders')
       .select('*')
-      .eq('order_number', orderNumber.trim().toUpperCase())
+      .eq('order_number', String(orderNumber).trim().toUpperCase())
       .maybeSingle()
 
     if (fetchError || !order) {
@@ -45,7 +51,7 @@ export async function POST(req) {
     const fardarFormPayload = new URLSearchParams()
     fardarFormPayload.append('api_key', process.env.FARDAR_API_KEY)
     fardarFormPayload.append('client_id', process.env.FARDAR_CLIENT_ID)
-    fardarFormPayload.append('waybill_id', stickerNumber.trim().toUpperCase())
+    fardarFormPayload.append('waybill_id', String(stickerNumber).trim().toUpperCase())
     fardarFormPayload.append('order_id', String(order.order_number))
     fardarFormPayload.append('parcel_weight', '1') 
     fardarFormPayload.append('parcel_description', dynamicDescription)
@@ -68,7 +74,6 @@ export async function POST(req) {
 
     if (responseStatus === '200') {
       
-      // ── 🌟 NEW: INSTANTLY SEED THE FIRST TRACKING STEP SO IT IS NEVER BLANK ──
       const initialHistoryLog = [
         {
           status: `Add a CCP Parcel By Warehouse System | Client - Techo Connect`,
@@ -80,9 +85,9 @@ export async function POST(req) {
       const { data: updatedRows, error: updateError } = await supabaseAdmin
         .from('orders')
         .update({
-          tracking_number: stickerNumber.trim().toUpperCase(),
+          tracking_number: String(stickerNumber).trim().toUpperCase(),
           courier_status: 'Parcel Registered',
-          courier_history: initialHistoryLog, // Save the initial step here
+          courier_history: initialHistoryLog,
           status: 'shipped'
         })
         .eq('order_number', order.order_number)

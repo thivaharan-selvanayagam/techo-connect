@@ -13,16 +13,13 @@ export default function AdminDispatchPage() {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
-  // Refs to automatically shift input focus for hands-free barcode scanning
   const orderInputRef = useRef(null)
   const stickerInputRef = useRef(null)
 
-  // Initial auto-focus on load
   useEffect(() => {
     if (orderInputRef.current) orderInputRef.current.focus()
   }, [])
 
-  // Step 1: Scan and pull order details from Supabase
   const handleFetchOrder = async (e) => {
     e.preventDefault()
     const query = orderQuery.trim().toUpperCase()
@@ -33,33 +30,17 @@ export default function AdminDispatchPage() {
     setStickerQuery('')
 
     try {
-      let data = null
-      let error = null
-
-      if (!isNaN(query)) {
-        const response = await supabase
-          .from('orders')
-          .select('*')
-          .eq('order_number', parseInt(query, 10))
-          .maybeSingle()
-        data = response.data
-        error = response.error
-      } else {
-        const response = await supabase
-          .from('orders')
-          .select('*')
-          .eq('order_number', query)
-          .maybeSingle()
-        data = response.data
-        error = response.error
-      }
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('order_number', query)
+        .maybeSingle()
 
       if (error) throw error
 
       if (data) {
         setActiveOrder(data)
         toast.success(`Order #${data.order_number} loaded. Scan sticker now!`)
-        // Auto-shift focus to the sticker input field on the next render frame
         setTimeout(() => {
           if (stickerInputRef.current) stickerInputRef.current.focus()
         }, 50)
@@ -76,7 +57,6 @@ export default function AdminDispatchPage() {
     }
   }
 
-  // Step 2: Scan waybill sticker and push to Fardar API simultaneously
   const handleRegisterSticker = async (e) => {
     e.preventDefault()
     const sticker = stickerQuery.trim().toUpperCase()
@@ -86,12 +66,12 @@ export default function AdminDispatchPage() {
     const integrationToast = toast.loading('Syncing sticker parameters with Fardar Express...')
 
     try {
-      // Hits the internal courier existing waybill routing API
       const res = await fetch('/api/courier/book-existing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orderId: activeOrder.id,
+          orderNumber: activeOrder.order_number, 
+          order_number: activeOrder.order_number, 
           stickerNumber: sticker
         })
       })
@@ -104,7 +84,6 @@ export default function AdminDispatchPage() {
 
       toast.success(`Success! Waybill ${sticker} linked to Order #${activeOrder.order_number}`, { id: integrationToast })
       
-      // Clear states and reset tracking view for the next package scan loop
       setActiveOrder(null)
       setOrderQuery('')
       setStickerQuery('')
@@ -137,7 +116,6 @@ export default function AdminDispatchPage() {
               <p style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>Hands-free high-speed order processing station.</p>
             </div>
 
-            {/* BARCODE BOX 1: DISPATCH SCAN TARGET ENTRY */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.5rem', marginBottom: '1.5rem' }}>
               <form onSubmit={handleFetchOrder}>
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--slate)', marginBottom: '0.5rem' }}>
@@ -156,20 +134,18 @@ export default function AdminDispatchPage() {
               </form>
             </div>
 
-            {/* VERIFICATION SUMMARY: LOCKS IN DATA VISUALLY */}
             {activeOrder && (
-              <div style={{ background: '#FFF', borderRadius: 12, border: '2px solid var(--green)', padding: '1.5rem', marginBottom: '1.5rem', animation: 'fadeIn 0.2s ease-out' }}>
+              <div style={{ background: '#FFF', borderRadius: 12, border: '2px solid var(--green)', padding: '1.5rem', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-light)', paddingBottom: '0.75rem', marginBottom: '0.75rem' }}>
                   <span style={{ fontWeight: 700, color: 'var(--ink)' }}>Active Order: #{activeOrder.order_number}</span>
                   <span style={{ color: 'var(--green)', fontWeight: 800 }}>{formatLKR(activeOrder.grand_total)}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--slate)' }}>
-                  <div>👤 <strong>Customer:</strong> {activeOrder.customer_name || activeOrder.customer?.name}</div>
-                  <div>📍 <strong>City/District:</strong> {activeOrder.customer_district || activeOrder.customer?.district}</div>
-                  <div>🏠 <strong>Address:</strong> {activeOrder.customer_address || activeOrder.customer?.address}</div>
-                  <div style={{ marginTop: '0.25rem' }}>📞 <strong>Contact:</strong> {activeOrder.customer_phone1 || activeOrder.customer?.phone1}</div>
+                  <div>👤 <strong>Customer:</strong> {activeOrder.customer_name}</div>
+                  <div>📍 <strong>City/District:</strong> {activeOrder.customer_district}</div>
+                  <div>🏠 <strong>Address:</strong> {activeOrder.customer_address}</div>
+                  <div style={{ marginTop: '0.25rem' }}>📞 Contact: {activeOrder.customer_phone1}</div>
                 </div>
-
                 <button 
                   onClick={() => { setActiveOrder(null); setOrderQuery(''); setStickerQuery(''); setTimeout(() => orderInputRef.current.focus(), 50); }}
                   style={{ background: 'none', border: 'none', color: '#EF4444', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', marginTop: '0.75rem', padding: 0 }}
@@ -179,7 +155,6 @@ export default function AdminDispatchPage() {
               </div>
             )}
 
-            {/* BARCODE BOX 2: COURIER BARCODE MAPPING */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.5rem', opacity: activeOrder ? 1 : 0.5, pointerEvents: activeOrder ? 'auto' : 'none', transition: 'opacity 0.2s' }}>
               <form onSubmit={handleRegisterSticker}>
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--slate)', marginBottom: '0.5rem' }}>
