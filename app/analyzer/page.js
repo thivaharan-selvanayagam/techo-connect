@@ -93,7 +93,10 @@ export default function SignalAnalyzerPage() {
         })
       }
 
+      // 🌟 FIXED: Dynamically detect mobile viewports to adapt canvas capture points
+      const isMobile = window.innerWidth <= 576
       const element = reportRef.current
+      
       const opt = {
         margin: [0, 0, 0, 0],
         filename: 'Techo_Connect_Signal_Analysis_Report.pdf',
@@ -106,8 +109,8 @@ export default function SignalAnalyzerPage() {
           useCORS: true,
           logging: false,
           scrollY: 0,
-          scrollX: 75,
-          windowWidth: 1200 // 🌟 RESTORED: Returns the canvas to your crisp original font widths
+          scrollX: isMobile ? 0 : 75, // 🌟 FIXED: Uses 75 for perfect desktop layout alignment, 0 for mobile screen widths
+          windowWidth: 1200
         },
         jsPDF: {
           unit: 'mm',
