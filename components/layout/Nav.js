@@ -25,6 +25,7 @@ export default function Nav() {
     { href: '/careers', label: 'Careers' },
     { href: '/contact', label: 'Contact' },
     { href: '/track', label: 'Track' },
+    { href: '/analyzer', label: 'Signal Analyzer' },
   ]
 
   return (
