@@ -109,7 +109,7 @@ export default function SignalAnalyzerPage() {
           useCORS: true,
           logging: false,
           scrollY: 0,
-          scrollX: isMobile ? 0 : 75, // 🌟 FIXED: Uses 75 for perfect desktop layout alignment, 0 for mobile screen widths
+          scrollX: isMobile ? -40 : 75, // 🌟 FIXED: Uses 75 for perfect desktop layout alignment, 0 for mobile screen widths
           windowWidth: 1200
         },
         jsPDF: {
