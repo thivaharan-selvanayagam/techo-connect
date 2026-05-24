@@ -23,7 +23,7 @@ export default function SignalAnalyzerPage() {
 
   const analyzeSignal = (e) => {
     e.preventDefault()
-    
+
     const sinr = parseFloat(inputs.sinr)
     const rsrp = parseFloat(inputs.rsrp)
     const rsrq = parseFloat(inputs.rsrq)
@@ -34,7 +34,7 @@ export default function SignalAnalyzerPage() {
             rsrp >= -90 ? { label: 'Good', color: '#059669' } :
             rsrp >= -100 ? { label: 'Fair (Weak Power)', color: '#F59E0B' } :
             { label: 'Poor (Severe Blockage)', color: '#EF4444' },
-      
+
       sinr: sinr >= 20 ? { label: 'Excellent', color: '#10B981' } :
             sinr >= 13 ? { label: 'Good', color: '#059669' } :
             sinr >= 5 ? { label: 'Fair (High Noise)', color: '#F59E0B' } :
@@ -58,19 +58,31 @@ export default function SignalAnalyzerPage() {
       issueTitle = "Critical Signal Starvation & Tower Static"
       diagnosticMessage = `Your wireless broadband connection is experiencing extreme signal attenuation. An RSRP value of ${rsrp} dBm shows the cellular waves are heavily blocked before reaching your workspace, forcing your router to decode distorted packets through background radio static noise (SINR: ${sinr} dB).`
       whyItHappens = "This happens because high-frequency cellular bands are absorbed by concrete structural blockades, reinforced masonry walls, and roofing profiles. Your internal omnidirectional router antennas are pulling in destructive reflections and environmental electronic noise instead of a clean, direct tower line."
-      problemList = ["Unpredictable ping spikes (latency jitter) between 40ms and 600ms.", "Drastic speed drops during peak hours due to massive packet corruption.", "Complete network dropouts under heavy streaming loads."]
-    } 
+      problemList = [
+        "Unpredictable ping spikes (latency jitter) between 40ms and 600ms.",
+        "Drastic speed drops during peak hours due to massive packet corruption.",
+        "Complete network dropouts under heavy streaming loads."
+      ]
+    }
     else if (rsrp >= -85 && sinr < 8) {
       issueTitle = "High Transmission Power with Severe Sector Jamming"
       diagnosticMessage = `Your raw reception power (${rsrp} dBm) is strong, but your overall communication clarity is critically compromised (SINR: ${sinr} dB). Your router has adequate raw power but cannot establish a clean connection through the surrounding radio clutter.`
       whyItHappens = "This happens because your router's stock internal antennas lack directional focus. They are accidentally catching competing, overlapping wave front paths from multiple base towers at the same time, creating an echoing cross-talk effect that slows down data parsing."
-      problemList = ["Lagging web page loads and stalling video player buffers.", "Disrupted connection speeds even when the signal bars display full power.", "Frequent stuttering during online multiplayer gaming or live Zoom calls."]
-    } 
+      problemList = [
+        "Lagging web page loads and stalling video player buffers.",
+        "Disrupted connection speeds even when the signal bars display full power.",
+        "Frequent stuttering during online multiplayer gaming or live Zoom calls."
+      ]
+    }
     else {
       issueTitle = "Sub-Optimal Network Range Limitation"
       diagnosticMessage = `Your data stream parameters indicate a connection bottleneck. Your current signal profile provides functional bandwidth for light browsing, but fails under high-load data processing tasks.`
       whyItHappens = "This is caused by distance constraints from the primary provider grid terminal or physical obstructions like dense foliage and surrounding buildings. The signal waves arrive scattered and weakened by the time they reach your indoor setup."
-      problemList = ["Pixelated video quality during 4K or HD streaming.", "Slower upload speeds that bottleneck file transfers.", "Noticeable packet loss during heavy multi-device network load."]
+      problemList = [
+        "Pixelated video quality during 4K or HD streaming.",
+        "Slower upload speeds that bottleneck file transfers.",
+        "Noticeable packet loss during heavy multi-device network load."
+      ]
     }
 
     setVerdict({ grades, issueTitle, diagnosticMessage, whyItHappens, problemList })
@@ -78,6 +90,7 @@ export default function SignalAnalyzerPage() {
 
   const downloadPDFReport = async () => {
     if (!verdict) return
+
     setPdfLoading(true)
     const toastId = toast.loading('Compiling crisp professional layout into PDF form...')
 
@@ -94,8 +107,9 @@ export default function SignalAnalyzerPage() {
       }
 
       const element = reportRef.current
+
       const opt = {
-        margin: 0, 
+        margin: 0,
         filename: 'Techo_Connect_Signal_Analysis_Report.pdf',
         image: {
           type: 'jpeg',
@@ -106,8 +120,8 @@ export default function SignalAnalyzerPage() {
           useCORS: true,
           logging: false,
           scrollY: 0,
-          scrollX: 150, // 🌟 FIXED: Kept at 0 to guarantee clear captures for non-mobile interfaces
-          windowWidth: 1200 
+          scrollX: 0,
+          windowWidth: document.documentElement.scrollWidth
         },
         jsPDF: {
           unit: 'mm',
@@ -120,6 +134,7 @@ export default function SignalAnalyzerPage() {
       }
 
       await window.html2pdf().set(opt).from(element).save()
+
       toast.success('Vector PDF Report successfully compiled!', { id: toastId })
     } catch (err) {
       console.error('PDF compiling runtime crash error:', err)
@@ -130,38 +145,220 @@ export default function SignalAnalyzerPage() {
   }
 
   const cssStyles = `
-    /* ── SCREEN INTERACTIVE VIEW STYLES ── */
-    .an-section { padding: 3rem 1rem 5rem; background: var(--bg); min-height: 90vh; }
-    .an-container { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-    .an-header { text-align: center; margin-bottom: 1rem; }
-    .an-grid { display: flex; flex-wrap: wrap; gap: 1.5rem; }
-    .an-form-panel { flex: 1 1 360px; background: white; border: 1px solid var(--border-light); padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.01); height: fit-content; }
-    .an-results-panel { flex: 1 2 480px; display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
-    .an-metric-badge { display: flex; justify-content: space-between; align-items: center; background: var(--bg); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-light); font-size: 0.88rem; }
-    .an-pitch-card { background: linear-gradient(135deg, #FFF 0%, #F0FDF4 100%); border: 2px solid var(--green); border-radius: 12px; padding: 1.5rem; margin-top: 0.25rem; }
-    .an-input-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem; }
-    .an-input-group label { font-size: 0.78rem; font-weight: 700; color: var(--slate); text-transform: uppercase; letter-spacing: 0.02em; }
-    
-    /* 🌟 FIXED: Added container scaling logic to text fields to prevent layout breakouts */
-    .an-input-group input { width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; border: 2px solid var(--border-light); border-radius: 8px; font-size: 1rem; outline: none; font-weight: 600; transition: border-color 0.2s; }
-    .an-input-group input:focus { border-color: var(--green); }
-
-    /* ── 📱 MOBILE RESPONSIVE ADAPTER OVERRIDES ── */
-    @media (max-width: 576px) {
-      .an-header { text-align: center; margin-bottom: 1rem; margin-top: 4rem;}
-      .an-section { padding: 1.5rem 0.5rem 3rem !important; }
-      .an-form-panel { padding: 1.25rem 1rem !important; flex: 1 1 100% !important; }
-      .an-results-panel { flex: 1 1 100% !important; }
-      
-      /* 🌟 FIXED: Added wrap parameters to block text collisions on tiny screens */
-      .an-metric-badge { padding: 0.65rem 0.75rem !important; font-size: 0.82rem !important; flex-direction: row !important; justify-content: space-between !important; flex-wrap: wrap; gap: 0.5rem; }
-      .an-badge-text { font-size: 0.8rem !important; }
-      .an-pitch-card { padding: 1.25rem 1rem !important; }
-      .an-download-btn { display: none !important; }
+    * {
+      box-sizing: border-box;
     }
 
-    /* ── 🖨️ PERFECT FULL-SCALE A4 CANVAS ARCHITECTURE (NO CLIPPING) ── */
-    /* ── PDF ROOT WRAPPER ── */
+    html,
+    body {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+
+    img,
+    table,
+    div,
+    button,
+    a {
+      max-width: 100%;
+    }
+
+    .an-section {
+      padding: 3rem 1rem 5rem;
+      background: var(--bg);
+      min-height: 90vh;
+      overflow-x: hidden;
+    }
+
+    .an-container {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .an-header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .an-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .an-form-panel {
+      flex: 1 1 360px;
+      background: white;
+      border: 1px solid var(--border-light);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+      height: fit-content;
+      min-width: 0;
+    }
+
+    .an-results-panel {
+      flex: 1 2 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .an-metric-badge {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-light);
+      font-size: 0.88rem;
+      gap: 0.5rem;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .an-badge-text {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .an-pitch-card {
+      background: linear-gradient(135deg, #FFF 0%, #F0FDF4 100%);
+      border: 2px solid var(--green);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .an-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .an-input-group label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--slate);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      line-height: 1.4;
+    }
+
+    .an-input-group input {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      font-weight: 600;
+      transition: border-color 0.2s;
+    }
+
+    .an-input-group input:focus {
+      border-color: var(--green);
+    }
+
+    @media (max-width: 768px) {
+
+      .an-section {
+        padding: 1rem 0.75rem 2rem !important;
+      }
+
+      .an-container {
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      .an-grid {
+        flex-direction: column !important;
+        gap: 1rem !important;
+      }
+
+      .an-form-panel,
+      .an-results-panel {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+      }
+
+      .an-form-panel {
+        padding: 1rem !important;
+        border-radius: 12px !important;
+      }
+
+      .an-results-panel {
+        gap: 0.75rem !important;
+      }
+
+      .an-header {
+        margin-top: 4rem;
+        padding: 0 0.25rem;
+      }
+
+      .an-header h1 {
+        font-size: 1.45rem !important;
+        line-height: 1.2 !important;
+      }
+
+      .an-header p {
+        font-size: 0.82rem !important;
+        line-height: 1.5 !important;
+      }
+
+      .an-input-group {
+        margin-bottom: 1rem !important;
+      }
+
+      .an-input-group label {
+        font-size: 0.72rem !important;
+      }
+
+      .an-input-group input {
+        font-size: 16px !important;
+        padding: 0.85rem 0.9rem !important;
+      }
+
+      .an-metric-badge {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.35rem !important;
+        padding: 0.8rem !important;
+        font-size: 0.8rem !important;
+      }
+
+      .an-badge-text {
+        width: 100%;
+        line-height: 1.4;
+      }
+
+      .an-pitch-card {
+        padding: 1rem !important;
+      }
+
+      .an-pitch-card p {
+        font-size: 0.8rem !important;
+        line-height: 1.5 !important;
+      }
+
+      .an-download-btn {
+        width: 100% !important;
+        padding: 0.9rem !important;
+        font-size: 0.82rem !important;
+      }
+    }
+
     .html2pdf-hidden-wrapper {
       position: absolute;
       top: 0;
@@ -175,7 +372,6 @@ export default function SignalAnalyzerPage() {
       padding: 0 !important;
     }
 
-    /* ── PDF CONTENT ROOT ── */
     .pdf-content-area {
       width: 210mm;
       margin: 0 !important;
@@ -186,15 +382,12 @@ export default function SignalAnalyzerPage() {
       line-height: 1.4;
     }
 
-    /* ── A4 PAGE ── */
     .pdf-page {
       width: 210mm;
-      height: 296.5mm; 
+      height: 296.5mm;
       background: #ffffff;
       box-sizing: border-box;
       position: relative;
-
-      /* PROFESSIONAL PAGE MARGINS */
       padding-top: 20mm;
       padding-right: 14mm;
       padding-bottom: 12mm;
@@ -224,40 +417,179 @@ export default function SignalAnalyzerPage() {
       padding: 0 !important;
       line-height: 1;
     }
-    .pdf-logo span { color: #1e293b; }
-    .pdf-lh-contacts { text-align: right; font-size: 8.5pt; color: #64748b; line-height: 1.4; vertical-align: top; }
-    .pdf-title-box { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #0ead6e; padding: 8px 12px; border-radius: 6px; margin-bottom: 14px; }
-    .pdf-section-heading { font-size: 11pt; font-weight: 700; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; margin-top: 14px; margin-bottom: 6px; }
-    .pdf-table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; }
-    .pdf-table th { background: #1e293b; color: #ffffff; text-transform: uppercase; font-size: 8.5pt; font-weight: 700; padding: 6px 8px; text-align: left; }
-    .pdf-table td { padding: 6px 8px; font-size: 9pt; border: 1px solid #e2e8f0; color: #334155; }
-    .pdf-badge { font-weight: 700; padding: 2px 6px; border-radius: 4px; font-size: 7.5pt; display: inline-block; }
-    .pdf-highlight { background: #fff9db; border-left: 4px solid #ef4444; padding: 8px 10px; margin-bottom: 10px; font-size: 9pt; color: #334155; }
-    .pdf-product-card { border: 1px solid #0ead6e; background: #f0fdf4; border-radius: 8px; padding: 12px; margin-top: 10px; }
-    .pdf-cta-box { background: #0ead6e; padding: 14px; border-radius: 8px; text-align: center; margin-top: 15px; }
-    
-    .pdf-btn-link { display: inline-block; background: white; color: #0ead6e; font-weight: 800; padding: 8px 16px; border-radius: 5px; text-decoration: underline; font-size: 9pt; text-transform: uppercase; margin-top: 8px; border: 1px solid #0ead6e; }
-    .pdf-prod-url { color: #0ead6e; font-weight: 700; text-decoration: underline; font-size: 9.5pt; display: inline-block; margin-top: 4px; }
-    .pdf-footer-tag { position: absolute; bottom: 12mm; left: 16mm; right: 16mm; border-top: 1px solid #e2e8f0; padding-top: 6px; font-size: 7.5pt; color: #64748b; }
-    .pdf-content-area p, .pdf-content-area li { font-size: 9.5pt; color: #334155; line-height: 1.45; text-align: justify; margin: 0 0 6px 0; }
-    .pdf-content-area ul { padding-left: 16px; margin-bottom: 6px; }
-  `;
+
+    .pdf-logo span {
+      color: #1e293b;
+    }
+
+    .pdf-lh-contacts {
+      text-align: right;
+      font-size: 8.5pt;
+      color: #64748b;
+      line-height: 1.4;
+      vertical-align: top;
+    }
+
+    .pdf-title-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #0ead6e;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+    }
+
+    .pdf-section-heading {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 3px;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    .pdf-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6px 0 12px;
+    }
+
+    .pdf-table th {
+      background: #1e293b;
+      color: #ffffff;
+      text-transform: uppercase;
+      font-size: 8.5pt;
+      font-weight: 700;
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    .pdf-table td {
+      padding: 6px 8px;
+      font-size: 9pt;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      word-break: break-word;
+    }
+
+    .pdf-badge {
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 7.5pt;
+      display: inline-block;
+    }
+
+    .pdf-highlight {
+      background: #fff9db;
+      border-left: 4px solid #ef4444;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      font-size: 9pt;
+      color: #334155;
+    }
+
+    .pdf-product-card {
+      border: 1px solid #0ead6e;
+      background: #f0fdf4;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .pdf-cta-box {
+      background: #0ead6e;
+      padding: 14px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .pdf-btn-link {
+      display: inline-block;
+      background: white;
+      color: #0ead6e;
+      font-weight: 800;
+      padding: 8px 16px;
+      border-radius: 5px;
+      text-decoration: underline;
+      font-size: 9pt;
+      text-transform: uppercase;
+      margin-top: 8px;
+      border: 1px solid #0ead6e;
+    }
+
+    .pdf-prod-url {
+      color: #0ead6e;
+      font-weight: 700;
+      text-decoration: underline;
+      font-size: 9.5pt;
+      display: inline-block;
+      margin-top: 4px;
+      word-break: break-word;
+    }
+
+    .pdf-footer-tag {
+      position: absolute;
+      bottom: 12mm;
+      left: 16mm;
+      right: 16mm;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 6px;
+      font-size: 7.5pt;
+      color: #64748b;
+    }
+
+    .pdf-content-area p,
+    .pdf-content-area li {
+      font-size: 9.5pt;
+      color: #334155;
+      line-height: 1.45;
+      text-align: justify;
+      margin: 0 0 6px 0;
+      word-break: break-word;
+    }
+
+    .pdf-content-area ul {
+      padding-left: 16px;
+      margin-bottom: 6px;
+    }
+  `
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: cssStyles }} />
 
-      {/* ── INTERACTIVE WEB DISPLAY VIEW MODE ── */}
       <Nav />
+
       <div className="an-section">
         <div className="an-container">
-          
+
           <div className="an-header">
             <span style={{ fontSize: '3.2rem' }}>📊</span>
-            <h1 style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.95rem', color: 'var(--ink)', marginTop: '0.25rem' }}>
+
+            <h1
+              style={{
+                fontFamily: 'var(--font-head)',
+                fontWeight: 800,
+                fontSize: '1.95rem',
+                color: 'var(--ink)',
+                marginTop: '0.25rem'
+              }}
+            >
               Techo Connect Signal Analyzer
             </h1>
-            <p style={{ color: 'var(--muted)', fontSize: '0.92rem', maxWidth: '520px', margin: '0.4rem auto 0', lineHeight: 1.4 }}>
+
+            <p
+              style={{
+                color: 'var(--muted)',
+                fontSize: '0.92rem',
+                maxWidth: '520px',
+                margin: '0.4rem auto 0',
+                lineHeight: 1.4
+              }}
+            >
               Input your wireless gateway diagnostic logs below to map your tower reception performance metrics instantly.
             </p>
           </div>
@@ -334,8 +666,10 @@ export default function SignalAnalyzerPage() {
             </div>
 
           </div>
+
         </div>
       </div>
+
       <Footer />
 
       {/* ── 🖨️ CORPORATE CANVAS RENDER HOUSING NODE ── */}
