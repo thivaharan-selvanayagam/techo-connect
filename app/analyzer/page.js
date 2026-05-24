@@ -95,7 +95,7 @@ export default function SignalAnalyzerPage() {
 
       const element = reportRef.current
       const opt = {
-        margin: 0, // 🌟 FIXED: Set to 0 because your CSS .pdf-page handles precise internal page margins natively
+        margin: 0, 
         filename: 'Techo_Connect_Signal_Analysis_Report.pdf',
         image: {
           type: 'jpeg',
@@ -106,7 +106,7 @@ export default function SignalAnalyzerPage() {
           useCORS: true,
           logging: false,
           scrollY: 0,
-          scrollX: 150, // 🌟 FIXED: Changed from 95 to 0 to prevent the snapshot view from clipping sideways
+          scrollX: 150, // 🌟 FIXED: Kept at 0 to guarantee clear captures for non-mobile interfaces
           windowWidth: 1200 
         },
         jsPDF: {
@@ -141,7 +141,9 @@ export default function SignalAnalyzerPage() {
     .an-pitch-card { background: linear-gradient(135deg, #FFF 0%, #F0FDF4 100%); border: 2px solid var(--green); border-radius: 12px; padding: 1.5rem; margin-top: 0.25rem; }
     .an-input-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem; }
     .an-input-group label { font-size: 0.78rem; font-weight: 700; color: var(--slate); text-transform: uppercase; letter-spacing: 0.02em; }
-    .an-input-group input { padding: 0.75rem 1rem; border: 2px solid var(--border-light); border-radius: 8px; font-size: 1rem; outline: none; font-weight: 600; transition: border-color 0.2s; }
+    
+    /* 🌟 FIXED: Added container scaling logic to text fields to prevent layout breakouts */
+    .an-input-group input { width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; border: 2px solid var(--border-light); border-radius: 8px; font-size: 1rem; outline: none; font-weight: 600; transition: border-color 0.2s; }
     .an-input-group input:focus { border-color: var(--green); }
 
     /* ── 📱 MOBILE RESPONSIVE ADAPTER OVERRIDES ── */
@@ -150,7 +152,9 @@ export default function SignalAnalyzerPage() {
       .an-section { padding: 1.5rem 0.5rem 3rem !important; }
       .an-form-panel { padding: 1.25rem 1rem !important; flex: 1 1 100% !important; }
       .an-results-panel { flex: 1 1 100% !important; }
-      .an-metric-badge { padding: 0.65rem 0.75rem !important; font-size: 0.82rem !important; flex-direction: row !important; justify-content: space-between !important; }
+      
+      /* 🌟 FIXED: Added wrap parameters to block text collisions on tiny screens */
+      .an-metric-badge { padding: 0.65rem 0.75rem !important; font-size: 0.82rem !important; flex-direction: row !important; justify-content: space-between !important; flex-wrap: wrap; gap: 0.5rem; }
       .an-badge-text { font-size: 0.8rem !important; }
       .an-pitch-card { padding: 1.25rem 1rem !important; }
       .an-download-btn { display: none !important; }
@@ -304,7 +308,7 @@ export default function SignalAnalyzerPage() {
                   <button 
                     onClick={downloadPDFReport} 
                     disabled={pdfLoading} 
-                    className="btn an-download-btn" /* 🌟 Added custom class here */
+                    className="btn an-download-btn" 
                     style={{ width: '100%', background: '#1e293b', color: 'white', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', border: 'none', opacity: pdfLoading ? 0.7 : 1 }}
                   >
                     <span>{pdfLoading ? 'Compiling PDF Layers...' : '📥 Download Detailed PDF Report'}</span>
