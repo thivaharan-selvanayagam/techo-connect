@@ -95,7 +95,7 @@ export default function SignalAnalyzerPage() {
 
       const element = reportRef.current
       const opt = {
-        margin: [0, 0, 0, 0],
+        margin: 0, // 🌟 FIXED: Set to 0 because your CSS .pdf-page handles precise internal page margins natively
         filename: 'Techo_Connect_Signal_Analysis_Report.pdf',
         image: {
           type: 'jpeg',
@@ -106,8 +106,8 @@ export default function SignalAnalyzerPage() {
           useCORS: true,
           logging: false,
           scrollY: 0,
-          scrollX: 75, // 🌟 Locks layout alignment framing to match the simulated window coordinates
-          windowWidth: 1200 // 🌟 UPDATED: Enforces an identical desktop layout footprint on both desktop and mobile
+          scrollX: 150, // 🌟 FIXED: Changed from 95 to 0 to prevent the snapshot view from clipping sideways
+          windowWidth: 1200 
         },
         jsPDF: {
           unit: 'mm',
@@ -153,11 +153,13 @@ export default function SignalAnalyzerPage() {
       .an-metric-badge { padding: 0.65rem 0.75rem !important; font-size: 0.82rem !important; flex-direction: row !important; justify-content: space-between !important; }
       .an-badge-text { font-size: 0.8rem !important; }
       .an-pitch-card { padding: 1.25rem 1rem !important; }
+      .an-download-btn { display: none !important; }
     }
 
+    /* ── 🖨️ PERFECT FULL-SCALE A4 CANVAS ARCHITECTURE (NO CLIPPING) ── */
     /* ── PDF ROOT WRAPPER ── */
     .html2pdf-hidden-wrapper {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 210mm;
@@ -187,6 +189,8 @@ export default function SignalAnalyzerPage() {
       background: #ffffff;
       box-sizing: border-box;
       position: relative;
+
+      /* PROFESSIONAL PAGE MARGINS */
       padding-top: 20mm;
       padding-right: 14mm;
       padding-bottom: 12mm;
@@ -297,7 +301,12 @@ export default function SignalAnalyzerPage() {
                     <p style={{ fontSize: '0.85rem', color: 'var(--slate)', lineHeight: 1.45, margin: 0 }}>{verdict.diagnosticMessage}</p>
                   </div>
 
-                  <button onClick={downloadPDFReport} disabled={pdfLoading} className="btn" style={{ width: '100%', background: '#1e293b', color: 'white', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', border: 'none', opacity: pdfLoading ? 0.7 : 1 }}>
+                  <button 
+                    onClick={downloadPDFReport} 
+                    disabled={pdfLoading} 
+                    className="btn an-download-btn" /* 🌟 Added custom class here */
+                    style={{ width: '100%', background: '#1e293b', color: 'white', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', border: 'none', opacity: pdfLoading ? 0.7 : 1 }}
+                  >
                     <span>{pdfLoading ? 'Compiling PDF Layers...' : '📥 Download Detailed PDF Report'}</span>
                   </button>
 
@@ -453,10 +462,10 @@ export default function SignalAnalyzerPage() {
               <p>The only scientifically tested methodology involves shifting data collection outside through an <strong>Exterior Directional Antenna Grid</strong>. This completely cuts out concrete interference factors by intercepting signal waves directly from open space and channeling them down via shielded low-loss coaxial cabling assemblies directly to your gateway router terminals.</p>
 
               <div className="pdf-section-heading">5. Prescribed Solution Hardware: Techo Connect Yagi Elite</div>
-              <p>To fully neutralize your local SINR wave distortion and boost data throughput speeds, our hardware engineering division explicitly prescribes deploying our high-gain directional array flagship:</p>
+              <p>To fully neutralize your local SINR wave distortion and boost data throughput speeds, our hardware engineering division strictly prescribes deploying our high-gain directional array flagship:</p>
               
               <div className="pdf-product-card">
-                <strong style={{ fontWeight: 800, color: '#0f172a', fontSize: '10.5pt', display: 'block', marginBottom: '2px' }}>📡 Techo Connect Yagi Elite Pro Edition</strong>
+                <strong style={{ fontWeight: 800, color: '#0f172a', fontSize: '10.5pt', display: 'block', marginBottom: '2px' }}>📡 Techo Connect Yagi Elite Edition</strong>
                 <p style={{ margin: '0 0 4px 0', fontSize: '9.5pt', color: '#334155' }}>
                   Engineered with an ultra-narrow 30° spatial receiving aperture plane. The Yagi Elite system locks directly onto the clean primary transmission sector block of local providers while forcefully rejecting secondary bouncing cell echoes and background radiation noise fields.
                 </p>
@@ -467,7 +476,7 @@ export default function SignalAnalyzerPage() {
                 <div style={{ marginTop: '6px', fontSize: '9.5pt', color: '#334155' }}>
                   <strong>Secure Your System Online:</strong><br />
                   <a href="https://connect.techotraders.com.lk/products/yagi-elite" target="_blank" rel="noopener noreferrer" className="pdf-prod-url">
-                    https://connect.techotraders.com.lk/products/yagi-elite
+                    To view Yagi antenns click here
                   </a>
                 </div>
               </div>
@@ -479,10 +488,10 @@ export default function SignalAnalyzerPage() {
               <div className="pdf-cta-box">
                 <strong style={{ fontSize: '11pt', display: 'block', marginBottom: '4px', color: '#ffffff' }}>💬 Launch Your WhatsApp Engineering Desk Review</strong>
                 <p style={{ fontSize: '9.5pt', margin: '0 0 10px 0', opacity: 0.95, color: '#ffffff' }}>
-                  Please click the link button below to connect with technical support. Forward a copy of this downloaded 2-page PDF report file straight to our WhatsApp chat channel so our engineers can read your local tower metrics immediately.
+                  Please click the link button below to connect with technical support. Forward a copy of this downloaded PDF report file straight to our WhatsApp chat channel so our engineers can read your local tower metrics immediately.
                 </p>
-                <a href="https://wa.me/94766656007?text=I%20have%20run%20my%20Techo%20Connect%20Signal%20Analyzer%20Report%20(Ref:%20TC-DIAG-5813).%20Please%20review%20my%20metrics%20for%20Yagi%20Elite%20installation." target="_blank" rel="noopener noreferrer" className="pdf-btn-link">
-                  Open WhatsApp Chat: https://wa.me/94766656007
+                <a href="https://wa.me/94766656007?text=I%20have%20run%20my%20Techo%20Connect%20Signal%20Analyzer%20Report%20.%20Please%20review%20my%20metrics%20for%20Yagi%20Elite%20installation." target="_blank" rel="noopener noreferrer" className="pdf-btn-link">
+                WhatsApp Chat with us
                 </a>
               </div>
 
