@@ -28,7 +28,7 @@ export default function Returns() {
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <div className="page-hero__label">Techo Connect / Legal</div>
           <h1 className="page-hero__title">Returns &amp; Refunds<br /><em>Policy</em></h1>
-          <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginTop: '0.75rem', position: 'relative', zIndex: 2 }}>
+          <p style={{ color: 'var(--muted)', fontSize: '0.9' + 'rem', marginTop: '0.75rem', position: 'relative', zIndex: 2 }}>
             Effective Date: <strong>18 April 2026</strong>
           </p>
         </div>
@@ -76,6 +76,19 @@ export default function Returns() {
 
               <h3>Refund Deductions</h3>
               <p>If any damage, misuse, or missing parts are found during inspection, the relevant amount will be <strong>deducted from the refund</strong>.</p>
+
+              {/* ── 🌟 INTERACTIVE REFUND CALCULATOR WIDGET INTEGRATION ── */}
+              <div style={{ background: 'rgba(10,173,110,0.03)', border: '1px dashed #0AAD6E', borderRadius: 12, padding: '1.5rem', margin: '1.25rem 0', textAlign: 'left' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--ink)', fontSize: '1rem', fontWeight: 700 }}>
+                  🧮 Interactive Value Deduction Estimator
+                </h4>
+                <p style={{ fontSize: '0.875rem', color: 'var(--slate)', margin: '0 0 1.25rem 0', lineHeight: 1.5 }}>
+                  Calculate your adjusted claim settlements instantly before scheduling a return. Use our self-service calculator to cross-match your antenna model variant and itemize any micro-component reductions (such as cables, U-bolts, dipole box modules, or structural elements) automatically.
+                </p>
+                <Link href="/refund-calculator" style={{ display: 'inline-block', background: '#0AAD6E', color: 'white', padding: '0.6rem 1.2rem', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 5px rgba(10,173,110,0.1)' }}>
+                  Launch Refund Calculator &rarr;
+                </Link>
+              </div>
 
               <h3>Refund Timeline</h3>
               <p>Approved refunds will be processed within <strong>3 working days</strong> after the return parcel is received and inspected at our facility.</p>
