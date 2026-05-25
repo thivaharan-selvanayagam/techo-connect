@@ -6,7 +6,7 @@ import { WA_LINK } from '../../lib/utils'
 
 export const metadata = {
   title: 'Returns & Refunds Policy',
-  description: 'Techo Connect return, refund and warranty policy. 5-day checking warranty and 6-month service warranty on all antenna products.',
+  description: 'Techo Connect return, refund and warranty policy. 5-day checking warranty and 12-month service warranty on all antenna products.',
 }
 
 const Section = ({ title, children }) => (
@@ -93,11 +93,16 @@ export default function Returns() {
               </div>
             </Section>
 
-            <Section title="4. Cash on Delivery (COD)">
+            <Section title="4. Customized Orders">
+              <p>Since customized items are tailor-made exclusively according to your specific requirements, they cannot be resold to other customers. Therefore, customized orders are <strong>not eligible for returns, refunds, or replacements</strong>.</p>
+              <p>However, your custom order is fully covered under our <strong>Service Warranty</strong> for any necessary repairs or maintenance.</p>
+            </Section>
+
+            <Section title="5. Cash on Delivery (COD)">
               <p><strong>Cash on Delivery is not available</strong> for service warranty claims or parts replacement orders. All warranty-related transactions must be handled via bank deposit.</p>
             </Section>
 
-            <Section title="5. How to Submit a Warranty or Return Claim">
+            <Section title="6. How to Submit a Warranty or Return Claim">
               <ol style={{ paddingLeft: '1.25rem', listStyle: 'decimal', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <li style={{ fontSize: '0.925rem', color: 'var(--slate)', lineHeight: 1.75 }}>Contact us on WhatsApp at <strong>+94 70 665 6007</strong></li>
                 <li style={{ fontSize: '0.925rem', color: 'var(--slate)', lineHeight: 1.75 }}>Provide your <strong>order number</strong> and purchase date</li>
