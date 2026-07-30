@@ -19,10 +19,18 @@ export default function Home() {
 
   const whyUs = [
     { icon: '🇱🇰', title: 'Local Engineering', desc: 'Every antenna is tested on Sri Lankan carrier frequencies — Dialog, Mobitel, SLT, Hutch — to ensure perfect sync.' },
-    { icon: '🏭', title: 'Premium Materials', desc: 'Industrial-grade PVC and high-conductivity aluminum-coated cables built for lifetime durability.' },
-    { icon: '🎯', title: 'Expert Support', desc: 'Our technical team provides direct guidance via WhatsApp to ensure your router achieves the lowest latency possible.' },
+    { icon: '🏭', title: 'Swisstek Aluminium', desc: 'Crafted exclusively using premium Swisstek branded aluminium bars for long-lasting structural strength.' },
+    { icon: '🎯', title: '100% QC Passed', desc: 'Every antenna is carefully handmade, individually inspected, and quality tested before leaving our hub.' },
     { icon: '🚚', title: 'Island-Wide Delivery', desc: 'Fast courier delivery to all 25 districts of Sri Lanka. Same-day dispatch on confirmed orders.' },
   ]
+
+  // Image path mapping function for antenna variants
+  const getProductImage = (id) => {
+    if (id === 'yagi-pro') return '/products/yagi-pro/yagi-pro-v1-1.webp'
+    if (id === 'yagi-elite') return '/products/yagi-elite/yagi-elite-v1-1.webp'
+    if (id === 'yagi-ultra') return '/products/yagi-ultra/yagi-ultra-v1-1.webp'
+    return '/antenna.webp'
+  }
 
   return (
     <>
@@ -35,7 +43,7 @@ export default function Home() {
         <div className="hero__body">
           <div className="container">
             
-            {/* DESKTOP HERO (Unchanged) */}
+            {/* DESKTOP HERO */}
             <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }}>
               <div className="hero__content">
                 <div className="hero__eyebrow">
@@ -48,7 +56,7 @@ export default function Home() {
                   Boost Your<br /><em>4G Signal</em><br />Instantly.
                 </h1>
                 <p className="hero__desc">
-                  Engineered for Sri Lankan carrier frequencies. Our Yagi antennas transform weak 4G/LTE signals into blazing-fast internet — no matter where you are on the island.
+                  Handcrafted with premium Swisstek Aluminium and engineered for Sri Lankan carrier frequencies. Transform weak 4G/LTE signals into fast, stable internet.
                 </p>
                 <div className="hero__actions">
                   <Link href="/products" className="btn btn-primary btn-lg">
@@ -61,7 +69,7 @@ export default function Home() {
                   </a>
                 </div>
                 <div className="hero__trust">
-                  {['5-Day Checking Warranty', '12-Month Service Warranty', 'Island-Wide Delivery'].map(t => (
+                  {['Handmade & QC Passed', 'Swisstek Aluminium', 'Island-Wide Delivery'].map(t => (
                     <div key={t} className="hero__trust-item">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                       {t}
@@ -105,7 +113,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* MOBILE HERO (Optimized stacked layout) */}
+            {/* MOBILE HERO */}
             <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', textAlign: 'center', alignItems: 'center' }}>
               <div className="hero__content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div className="hero__eyebrow">
@@ -118,7 +126,7 @@ export default function Home() {
                   Boost Your<br /><em>4G Signal</em><br />Instantly.
                 </h1>
                 <p className="hero__desc">
-                  Engineered for Sri Lankan carrier frequencies. Our Yagi antennas transform weak 4G/LTE signals into blazing-fast internet — no matter where you are on the island.
+                  Handcrafted with premium Swisstek Aluminium and engineered for Sri Lankan carrier frequencies. Transform weak 4G/LTE signals into fast, stable internet.
                 </p>
                 <div className="hero__actions" style={{ justifyContent: 'center', width: '100%' }}>
                   <Link href="/products" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
@@ -131,7 +139,7 @@ export default function Home() {
                   </a>
                 </div>
                 <div className="hero__trust" style={{ justifyContent: 'center' }}>
-                  {['5-Day Checking Warranty', '12-Month Service Warranty', 'Island-Wide Delivery'].map(t => (
+                  {['Handmade & QC Passed', 'Swisstek Aluminium', 'Island-Wide Delivery'].map(t => (
                     <div key={t} className="hero__trust-item">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                       {t}
@@ -160,104 +168,251 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── MAIN PRODUCTS ── */}
-      <section style={{ padding: '6rem 0', background: 'white' }}>
+      {/* ── MAIN PRODUCTS COMPARISON SECTION ── */}
+      <section style={{ padding: '6rem 0', background: 'linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%)' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <div className="label" style={{ justifyContent: 'center', marginBottom: '0.75rem' }}>Our Antennas</div>
-            <h2 className="section-title reveal">Choose Your <em>Signal Solution</em></h2>
-            <p className="reveal" data-d="1" style={{ color: 'var(--muted)', fontSize: '1rem', maxWidth: 500, margin: '0.75rem auto 0', lineHeight: 1.75 }}>
-              Both models work identically — the only difference is cable length. Choose based on the distance between your router and your ideal antenna mounting spot.
+          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+            <div style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '0.4rem', 
+              fontSize: '0.75rem', 
+              fontWeight: 800, 
+              letterSpacing: '0.12em', 
+              textTransform: 'uppercase', 
+              color: 'var(--green)', 
+              background: 'rgba(10,173,110,0.08)', 
+              padding: '0.35rem 0.9rem', 
+              borderRadius: 100, 
+              marginBottom: '0.85rem' 
+            }}>
+              ✦ MODEL COMPARISON
+            </div>
+            <h2 className="section-title reveal" style={{ fontSize: '2.5rem', letterSpacing: '-0.02em' }}>
+              Select Your <em>Antenna Setup</em>
+            </h2>
+            <p className="reveal" data-d="1" style={{ color: 'var(--muted)', fontSize: '0.98rem', maxWidth: 540, margin: '0.6rem auto 0', lineHeight: 1.65 }}>
+              All models feature identical handcrafted Swisstek Aluminium frames. Pick the antenna variant engineered for your specific cable requirement.
             </p>
           </div>
 
-          {/* DESKTOP PRODUCTS GRID (Unchanged structure, updated with antenna.webp) */}
-          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-            {mainProducts.map((product, idx) => (
-              <div key={product.id} className="product-card reveal" data-d={String(idx)}>
-                <div className="product-card__img">
-                  <img 
-                    src="/antenna.webp" 
-                    alt={product.name} 
-                    style={{ width: '80%', height: 'auto', maxHeight: '200px', objectFit: 'contain' }} 
-                  />
-                  <div style={{ position: 'absolute', top: 12, left: 12 }}>
-                    <span className="badge" style={{ background: idx === 0 ? 'rgba(10,173,110,0.15)' : 'rgba(212,79,10,0.15)', color: idx === 0 ? '#078A57' : '#A33C07' }}>
-                      {product.badge}
-                    </span>
+          {/* 3-CARD MODERN COMPARISON GRID */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'stretch' }}>
+            {mainProducts.map((product, idx) => {
+              const isFeatured = product.id === 'yagi-elite'
+              const startingPrice = product.variants?.[0]?.price || 3700
+
+              // Dynamic Cable Highlights
+              let cableInfo = {
+                title: '10M Low-Loss Black Cable',
+                tag: 'Standard Reach',
+                color: '#0AAD6E',
+                bg: 'rgba(10,173,110,0.06)',
+                border: 'rgba(10,173,110,0.2)'
+              }
+
+              if (product.id === 'yagi-elite') {
+                cableInfo = {
+                  title: '15M Low-Loss Black Cable',
+                  tag: 'Extended Reach',
+                  color: '#D44F0A',
+                  bg: 'rgba(212,79,10,0.06)',
+                  border: 'rgba(212,79,10,0.2)'
+                }
+              } else if (product.id === 'yagi-ultra') {
+                cableInfo = {
+                  title: '15M Dialog Original White Cable',
+                  tag: 'Original Dialog Spec',
+                  color: '#7C3AED',
+                  bg: 'rgba(124,58,237,0.06)',
+                  border: 'rgba(124,58,237,0.2)'
+                }
+              }
+
+              return (
+                <div 
+                  key={product.id} 
+                  className="reveal" 
+                  data-d={String(idx)} 
+                  style={{ 
+                    position: 'relative',
+                    background: 'white', 
+                    borderRadius: 24, 
+                    border: isFeatured ? '2px solid var(--green)' : '1px solid #E2E8F0', 
+                    boxShadow: isFeatured ? '0 20px 48px -10px rgba(10,173,110,0.18)' : '0 10px 30px -5px rgba(0,0,0,0.04)',
+                    padding: '2.25rem 1.75rem 2rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    transform: isFeatured ? 'translateY(-8px)' : 'none',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {/* FEATURED RIBBON */}
+                  {isFeatured && (
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      background: 'var(--green)',
+                      color: 'white',
+                      fontSize: '0.65rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.12em',
+                      padding: '0.35rem 1.25rem',
+                      borderBottomLeftRadius: 16,
+                      boxShadow: '0 4px 12px rgba(10,173,110,0.3)'
+                    }}>
+                      ★ MOST POPULAR
+                    </div>
+                  )}
+
+                  <div>
+                    {/* Top Meta info */}
+                    <div style={{ marginBottom: '1rem' }}>
+                      <span style={{ 
+                        fontSize: '0.7rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        color: product.badgeColor || 'var(--green)',
+                        background: `${product.badgeColor || '#0AAD6E'}15`,
+                        padding: '0.3rem 0.8rem',
+                        borderRadius: 100,
+                        display: 'inline-block'
+                      }}>
+                        {product.badge || 'Variant'}
+                      </span>
+                    </div>
+
+                    <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.85rem', color: 'var(--ink)', margin: '0 0 0.3rem' }}>
+                      {product.name}
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5, minHeight: '2.6em' }}>
+                      {product.tagline}
+                    </p>
+
+                    {/* 🌟 ENLARGED PRODUCT PREVIEW WINDOW (Height 190px, minimal padding) */}
+                    <div style={{ 
+                      textAlign: 'center', 
+                      margin: '1.25rem 0', 
+                      background: '#F8FAFC', 
+                      padding: '0.5rem', 
+                      borderRadius: 16, 
+                      border: '1px solid #EDF2F7',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: 190,
+                      overflow: 'hidden'
+                    }}>
+                      <img 
+                        src={getProductImage(product.id)} 
+                        alt={product.name} 
+                        style={{ height: '100%', width: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.06))' }}
+                        onError={(e) => { e.currentTarget.src = '/antenna.webp' }}
+                      />
+                    </div>
+
+                    {/* Price Header */}
+                    <div style={{ textAlign: 'center', padding: '0.85rem 0 1.25rem', borderBottom: '1px border-dash #E2E8F0' }}>
+                      <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Starting Price</div>
+                      <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '2.25rem', color: 'var(--ink)', lineHeight: 1.1, marginTop: '0.2rem' }}>
+                        {formatLKR(startingPrice)}
+                      </div>
+                    </div>
+
+                    {/* CABLE SPEC HIGHLIGHT BOX */}
+                    <div style={{ 
+                      background: cableInfo.bg, 
+                      border: `1px solid ${cableInfo.border}`, 
+                      borderRadius: 16, 
+                      padding: '1rem 1.15rem', 
+                      margin: '1.25rem 0'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                        <span style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', fontWeight: 700 }}>Cable Type</span>
+                        <span style={{ fontSize: '0.62rem', fontWeight: 800, color: cableInfo.color, background: 'white', padding: '2px 8px', borderRadius: 100, border: `1px solid ${cableInfo.border}` }}>
+                          {cableInfo.tag}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
+                        <span style={{ fontSize: '1.1rem' }}>🔌</span> {cableInfo.title}
+                      </div>
+                    </div>
+
+                    {/* Modern Clean Features Checklist */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
+                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
+                        <span style={{ color: 'var(--slate)' }}>Frame: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>Swisstek Branded Aluminium</strong></span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
+                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
+                        <span style={{ color: 'var(--slate)' }}>Frequency: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>700 - 2700 MHz (4G LTE)</strong></span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
+                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
+                        <span style={{ color: 'var(--slate)' }}>Connector: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>Gold Plated Universal SMA</strong></span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
+                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
+                        <span style={{ color: 'var(--slate)' }}>Carriers: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>Dialog, Mobitel, SLT, Hutch</strong></span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="product-card__body">
-                  <div className="product-card__name">{product.name}</div>
-                  <div className="product-card__desc">{product.tagline}</div>
-                  <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      ✓ {product.warranty.checking} Checking Warranty
-                    </span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      ✓ {product.warranty.service} Service Warranty
-                    </span>
-                  </div>
-                  <div className="product-card__price-from">Starting from</div>
-                  <div className="product-card__price">{formatLKR(product.variants[0].price)}</div>
-                  <div className="product-card__footer">
-                    <Link href={`/products/${product.slug}`} className="btn btn-primary" style={{ flex: 1 }}>
-                      View & Order
-                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+
+                  {/* Actions / CTA Buttons */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginTop: 'auto' }}>
+                    <Link 
+                      href={`/products/${product.slug}`} 
+                      className="btn btn-primary" 
+                      style={{ 
+                        width: '100%', 
+                        padding: '0.85rem', 
+                        justifyContent: 'center',
+                        fontWeight: 700,
+                        background: isFeatured ? 'var(--green)' : 'var(--ink)',
+                        borderColor: isFeatured ? 'var(--green)' : 'var(--ink)',
+                        borderRadius: 12,
+                        boxShadow: isFeatured ? '0 8px 20px rgba(10,173,110,0.25)' : 'none'
+                      }}
+                    >
+                      View Details &amp; Order ↗
                     </Link>
-                    <a href={`${WA_LINK}${encodeURIComponent(`I'm interested in the ${product.name}. Please share more details.`)}`} target="_blank" rel="noopener" className="btn btn-wa">
+                    <a 
+                      href={`${WA_LINK}${encodeURIComponent(`Hi! I'm interested in ordering the ${product.name}. Please assist me.`)}`} 
+                      target="_blank" 
+                      rel="noopener" 
+                      className="btn btn-wa" 
+                      style={{ width: '100%', padding: '0.75rem', justifyContent: 'center', gap: '0.5rem', fontSize: '0.875rem', borderRadius: 12 }}
+                    >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+                      Order via WhatsApp
                     </a>
                   </div>
+
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
-          {/* MOBILE PRODUCTS LIST */}
-          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {mainProducts.map((product, idx) => (
-              <div key={product.id} className="product-card">
-                <div className="product-card__img">
-                  <img 
-                    src="/antenna.webp" 
-                    alt={product.name} 
-                    style={{ width: '80%', height: 'auto', maxHeight: '180px', objectFit: 'contain' }} 
-                  />
-                  <div style={{ position: 'absolute', top: 12, left: 12 }}>
-                    <span className="badge" style={{ background: idx === 0 ? 'rgba(10,173,110,0.15)' : 'rgba(212,79,10,0.15)', color: idx === 0 ? '#078A57' : '#A33C07' }}>
-                      {product.badge}
-                    </span>
-                  </div>
-                </div>
-                <div className="product-card__body">
-                  <div className="product-card__name">{product.name}</div>
-                  <div className="product-card__desc">{product.tagline}</div>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.checking} Checking Warranty</span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.service} Service Warranty</span>
-                  </div>
-                  <div className="product-card__price-from">Starting from</div>
-                  <div className="product-card__price" style={{ marginBottom: '1rem' }}>{formatLKR(product.variants[0].price)}</div>
-                  <div style={{ display: 'flex', gap: '0.75rem' }}>
-                    <Link href={`/products/${product.slug}`} className="btn btn-primary" style={{ flex: 1 }}>View & Order</Link>
-                    <a href={`${WA_LINK}${encodeURIComponent(`I'm interested in the ${product.name}. Please share more details.`)}`} target="_blank" rel="noopener" className="btn btn-wa">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
-                    </a>
-                  </div>
-                </div>
+          {/* Help Banner */}
+          <div className="reveal" style={{ marginTop: '3rem', padding: '1.5rem 1.75rem', background: 'white', border: '1px solid #E2E8F0', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(10,173,110,0.1)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>💡</div>
+              <div>
+                <strong style={{ fontSize: '0.98rem', color: 'var(--ink)' }}>Need help choosing your cable setup?</strong>
+                <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0.15rem 0 0' }}>Send us your router model and location on WhatsApp for instant engineering guidance.</p>
               </div>
-            ))}
-          </div>
-
-          {/* Comparison note */}
-          <div className="reveal" style={{ marginTop: '1.5rem', padding: '1.25rem 1.5rem', background: 'rgba(10,173,110,0.05)', border: '1px solid rgba(10,173,110,0.15)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-            <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>💡</span>
-            <div>
-              <strong style={{ fontSize: '0.875rem', color: 'var(--ink)' }}>Not sure which to choose?</strong>
-              <span style={{ fontSize: '0.875rem', color: 'var(--muted)', marginLeft: '0.4rem' }}>If your router is within 10 metres of your mounting spot, go with Yagi Pro. If you need more cable reach, choose Yagi Elite with the 15M cable.</span>
             </div>
+            <a href={`${WA_LINK}${encodeURIComponent('Hello! I need help selecting the best Yagi antenna model for my area.')}`} target="_blank" rel="noopener" className="btn btn-primary btn-sm" style={{ padding: '0.65rem 1.4rem', borderRadius: 10 }}>
+              Ask an Expert 💬
+            </a>
           </div>
+
         </div>
       </section>
 
@@ -269,7 +424,7 @@ export default function Home() {
             <h2 className="section-title reveal">Built for <em>Sri Lanka</em></h2>
           </div>
 
-          {/* DESKTOP WHY US (Unchanged) */}
+          {/* DESKTOP WHY US */}
           <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5px', background: 'var(--border-light)', border: '1px solid var(--border-light)', borderRadius: 16, overflow: 'hidden' }}>
             {whyUs.map((item, i) => (
               <div key={item.title} className="reveal" data-d={String(i % 2)} style={{ background: 'white', padding: '2rem 1.75rem', transition: 'background 0.25s' }}
@@ -282,7 +437,7 @@ export default function Home() {
             ))}
           </div>
 
-          {/* MOBILE WHY US (Stacked alternative layout) */}
+          {/* MOBILE WHY US */}
           <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {whyUs.map((item) => (
               <div key={item.title} style={{ background: 'white', padding: '1.5rem', borderRadius: 12, border: '1px solid var(--border-light)' }}>
@@ -310,17 +465,16 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* DESKTOP SPARES (Unchanged) */}
+          {/* DESKTOP SPARES */}
           <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
             {featuredSpares.map((p, i) => (
               <div key={p.id} className="spare-card reveal" data-d={String(i % 2)}>
-                {/* Clean inline photo container */}
                 <div style={{ width: '64px', height: '64px', borderRadius: '8px', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(0,0,0,0.04)' }}>
                   <img 
                     src={`/spares/${p.id}.webp`} 
                     alt={p.name} 
                     style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} 
-                    onError={(e) => { e.target.src = '/antenna.webp' }}
+                    onError={(e) => { e.currentTarget.src = '/antenna.webp' }}
                   />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -343,13 +497,12 @@ export default function Home() {
             {featuredSpares.map((p) => (
               <div key={p.id} className="spare-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem', padding: '1.25rem 1rem' }}>
                 <div style={{ display: 'flex', gap: '1rem', width: '100%', alignItems: 'center' }}>
-                  {/* Photo row layout block */}
                   <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border-light)' }}>
                     <img 
                       src={`/spares/${p.id}.webp`} 
                       alt={p.name} 
                       style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} 
-                      onError={(e) => { e.target.src = '/antenna.webp' }}
+                      onError={(e) => { e.currentTarget.src = '/antenna.webp' }}
                     />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -401,7 +554,7 @@ export default function Home() {
             <h2 className="section-title reveal">What Our <em>Customers Say</em></h2>
           </div>
 
-          {/* DESKTOP TESTIMONIALS (Unchanged) */}
+          {/* DESKTOP TESTIMONIALS */}
           <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
             {testimonials.map((t, i) => (
               <div key={t.id} className="reveal" data-d={String(i % 3)} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, padding: '1.5rem' }}>

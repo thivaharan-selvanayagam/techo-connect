@@ -14,7 +14,7 @@ export default function About() {
     { icon: '🏭', title: 'Premium Materials', desc: 'Industrial-grade PVC and high-conductivity aluminum-coated cables designed for lifetime durability in tropical weather conditions.' },
     { icon: '🎯', title: 'Expert Support', desc: 'Our technical team provides direct WhatsApp guidance to ensure your router achieves the lowest latency possible, wherever you are.' },
     { icon: '🚚', title: 'Island-Wide Delivery', desc: 'Fast courier delivery to all 25 districts of Sri Lanka. Confirmed orders are dispatched within 24 hours.' },
-    { icon: '🔧', title: 'Warranty Backed', desc: '5-day checking warranty and 6-month service warranty on all main antenna models. No service charge on repairs.' },
+    { icon: '🔧', title: 'Warranty Backed', desc: '5-day checking warranty and 12-month service warranty on all main antenna models. No service charge on repairs.' },
     { icon: '📡', title: 'Signal-Optimised Design', desc: 'Precision-tuned Yagi elements targeting 700MHz–2700MHz — the frequency bands used by all major Sri Lankan 4G carriers.' },
   ]
 
@@ -63,7 +63,7 @@ export default function About() {
                     { val: '2', suffix: '+', lbl: 'Antenna Models' },
                     { val: '25', suffix: '', lbl: 'Districts Served' },
                     { val: '4', suffix: '', lbl: 'Carrier Networks' },
-                    { val: '6', suffix: 'mo', lbl: 'Service Warranty' },
+                    { val: '12', suffix: 'mo', lbl: 'Service Warranty' },
                   ].map(s => (
                     <div key={s.lbl} style={{ textAlign: 'center', padding: '1.25rem', background: 'white', borderRadius: 12, border: '1px solid var(--border-light)' }}>
                       <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '2.2rem', color: 'var(--green)', lineHeight: 1 }}>{s.val}<span style={{ fontSize: '1.3rem' }}>{s.suffix}</span></div>

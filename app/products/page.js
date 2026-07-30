@@ -28,7 +28,8 @@ export default function Products() {
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <div className="page-hero__label">Techo Connect / Products</div>
           <h1 className="page-hero__title">Antenna Solutions<br /><em>For Every Need</em></h1>
-          <p className="page-hero__desc">2 main antenna models, 25 spare parts & components — all engineered for Sri Lankan 4G/LTE networks.</p>
+          {/* Updated Hero descriptor to reflect 3 main antenna models */}
+          <p className="page-hero__desc">3 main antenna models, 25 spare parts &amp; components — all engineered for Sri Lankan 4G/LTE networks.</p>
         </div>
       </section>
 
@@ -38,100 +39,119 @@ export default function Products() {
           <div className="label" style={{ marginBottom: '0.75rem' }}>Main Antennas</div>
           <h2 className="section-title reveal" style={{ marginBottom: '2.5rem' }}>Yagi <em>Antenna Models</em></h2>
 
-          {/* DESKTOP MAIN PRODUCTS (100% Unchanged original design) */}
-          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-            {mainProducts.map((product, idx) => (
-              <div key={product.id} className="reveal" data-d={String(idx)} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 20, overflow: 'hidden' }}>
-                <div style={{ padding: '2.5rem 2rem', background: 'linear-gradient(135deg, rgba(10,173,110,0.06) 0%, rgba(10,173,110,0.12) 100%)', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <span className="badge" style={{ background: idx === 0 ? 'rgba(10,173,110,0.15)' : 'rgba(212,79,10,0.12)', color: idx === 0 ? '#078A57' : '#A33C07', marginBottom: '0.75rem', display: 'inline-flex' }}>{product.badge}</span>
-                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.8rem', color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>{product.name}</div>
-                    <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>{product.tagline}</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginBottom: '0.2rem' }}>From</div>
-                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.5rem', color: 'var(--green)' }}>{formatLKR(product.variants[0].price)}</div>
-                  </div>
-                </div>
+          {/* DESKTOP MAIN PRODUCTS (Upgraded to 3-column responsive grid for Yagi Pro, Yagi Elite & Yagi Ultra) */}
+          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+            {mainProducts.map((product, idx) => {
+              // Dynamic badge colors for Pro, Elite, and Ultra
+              const badgeBg = product.badgeColor 
+                ? `${product.badgeColor}20` 
+                : (idx === 0 ? 'rgba(10,173,110,0.15)' : idx === 1 ? 'rgba(212,79,10,0.12)' : 'rgba(124,58,237,0.15)')
+              
+              const badgeTextColor = product.badgeColor || (idx === 0 ? '#078A57' : idx === 1 ? '#A33C07' : '#6D28D9')
 
-                <div style={{ padding: '1.5rem 2rem' }}>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.75rem' }}>Available Variants</div>
-                  {product.variants.map(v => (
-                    <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid var(--border-light)', gap: '1rem', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '0.15rem' }}>{v.name}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Weight: {v.weight}g</div>
-                      </div>
-                      <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1rem', color: 'var(--green)', whiteSpace: 'nowrap' }}>{formatLKR(v.price)}</div>
+              return (
+                <div key={product.id} className="reveal" data-d={String(idx)} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 20, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '2rem 1.5rem', background: 'linear-gradient(135deg, rgba(10,173,110,0.06) 0%, rgba(10,173,110,0.12) 100%)', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <span className="badge" style={{ background: badgeBg, color: badgeTextColor, marginBottom: '0.75rem', display: 'inline-flex' }}>{product.badge}</span>
+                      <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.6rem', color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>{product.name}</div>
+                      <div style={{ fontSize: '0.825rem', color: 'var(--muted)', minHeight: '2.4em' }}>{product.tagline}</div>
                     </div>
-                  ))}
-
-                  <div style={{ display: 'flex', gap: '0.75rem', margin: '1.25rem 0', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.checking} Checking Warranty</span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.service} Service Warranty</span>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginBottom: '0.2rem' }}>From</div>
+                      <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.35rem', color: 'var(--green)' }}>{formatLKR(product.variants[0].price)}</div>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <Link href={`/products/${product.slug}`} className="btn btn-primary" style={{ flex: 1 }}>
-                      View Details & Order
-                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-                    </Link>
-                    <a href={`${WA_LINK}${encodeURIComponent(`Hi! I want to order the ${product.name}. Please help me.`)}`} target="_blank" rel="noopener" className="btn btn-wa">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
-                    </a>
+                  <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.75rem' }}>Available Variants</div>
+                      {product.variants.map(v => (
+                        <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0', borderBottom: '1px solid var(--border-light)', gap: '0.75rem' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '0.825rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '0.15rem' }}>{v.name}</div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Weight: {v.weight}g</div>
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '0.95rem', color: 'var(--green)', whiteSpace: 'nowrap' }}>{formatLKR(v.price)}</div>
+                        </div>
+                      ))}
+
+                      <div style={{ display: 'flex', gap: '0.75rem', margin: '1.25rem 0', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.checking} Checking</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.service} Service</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+                      <Link href={`/products/${product.slug}`} className="btn btn-primary" style={{ flex: 1, padding: '0.75rem 0.5rem', fontSize: '0.85rem' }}>
+                        View Details
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 14, height: 14 }}><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+                      </Link>
+                      <a href={`${WA_LINK}${encodeURIComponent(`Hi! I want to order the ${product.name}. Please help me.`)}`} target="_blank" rel="noopener" className="btn btn-wa" style={{ padding: '0.75rem' }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {/* MOBILE MAIN PRODUCTS */}
           <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {mainProducts.map((product, idx) => (
-              <div key={product.id} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, overflow: 'hidden' }}>
-                <div style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(10,173,110,0.06) 0%, rgba(10,173,110,0.12) 100%)', borderBottom: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="badge" style={{ background: idx === 0 ? 'rgba(10,173,110,0.15)' : 'rgba(212,79,10,0.12)', color: idx === 0 ? '#078A57' : '#A33C07' }}>{product.badge}</span>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--muted)', marginRight: '0.2rem' }}>From</span>
-                      <strong style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--green)' }}>{formatLKR(product.variants[0].price)}</strong>
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.5rem', color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>{product.name}</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.4 }}>{product.tagline}</div>
-                  </div>
-                </div>
+            {mainProducts.map((product, idx) => {
+              const badgeBg = product.badgeColor 
+                ? `${product.badgeColor}20` 
+                : (idx === 0 ? 'rgba(10,173,110,0.15)' : idx === 1 ? 'rgba(212,79,10,0.12)' : 'rgba(124,58,237,0.15)')
+              
+              const badgeTextColor = product.badgeColor || (idx === 0 ? '#078A57' : idx === 1 ? '#A33C07' : '#6D28D9')
 
-                <div style={{ padding: '1.25rem' }}>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.5rem' }}>Available Variants</div>
-                  {product.variants.map(v => (
-                    <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0', borderBottom: '1px solid var(--border-light)', gap: '0.5rem' }}>
-                      <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--ink)' }}>{v.name}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Weight: {v.weight}g</div>
+              return (
+                <div key={product.id} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, overflow: 'hidden' }}>
+                  <div style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(10,173,110,0.06) 0%, rgba(10,173,110,0.12) 100%)', borderBottom: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className="badge" style={{ background: badgeBg, color: badgeTextColor }}>{product.badge}</span>
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--muted)', marginRight: '0.2rem' }}>From</span>
+                        <strong style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--green)' }}>{formatLKR(product.variants[0].price)}</strong>
                       </div>
-                      <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '0.95rem', color: 'var(--green)' }}>{formatLKR(v.price)}</div>
                     </div>
-                  ))}
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', margin: '1rem 0' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.checking} Checking Warranty</span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.service} Service Warranty</span>
+                    <div>
+                      <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.5rem', color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>{product.name}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.4 }}>{product.tagline}</div>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column', width: '100%' }}>
-                    <Link href={`/products/${product.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '0.75rem' }}>
-                      View Details & Order
-                    </Link>
-                    <a href={`${WA_LINK}${encodeURIComponent(`Hi! I want to order the ${product.name}. Please help me.`)}`} target="_blank" rel="noopener" className="btn btn-wa" style={{ width: '100%', padding: '0.75rem', gap: '0.5rem' }}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
-                      Order via WhatsApp
-                    </a>
+                  <div style={{ padding: '1.25rem' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.5rem' }}>Available Variants</div>
+                    {product.variants.map(v => (
+                      <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0', borderBottom: '1px solid var(--border-light)', gap: '0.5rem' }}>
+                        <div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--ink)' }}>{v.name}</div>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Weight: {v.weight}g</div>
+                        </div>
+                        <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '0.95rem', color: 'var(--green)' }}>{formatLKR(v.price)}</div>
+                      </div>
+                    ))}
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', margin: '1rem 0' }}>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.checking} Checking Warranty</span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--green)', fontWeight: 600 }}>✓ {product.warranty.service} Service Warranty</span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column', width: '100%' }}>
+                      <Link href={`/products/${product.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '0.75rem' }}>
+                        View Details &amp; Order
+                      </Link>
+                      <a href={`${WA_LINK}${encodeURIComponent(`Hi! I want to order the ${product.name}. Please help me.`)}`} target="_blank" rel="noopener" className="btn btn-wa" style={{ width: '100%', padding: '0.75rem', gap: '0.5rem' }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+                        Order via WhatsApp
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
         </div>
@@ -140,7 +160,7 @@ export default function Products() {
       {/* ── SPARE PARTS ── */}
       <section style={{ padding: '5rem 0', background: 'var(--bg)' }} id="spares">
         <div className="container">
-          <div className="label" style={{ marginBottom: '0.75rem' }}>Spare Parts & Components</div>
+          <div className="label" style={{ marginBottom: '0.75rem' }}>Spare Parts &amp; Components</div>
           <h2 className="section-title reveal" style={{ marginBottom: '0.75rem' }}>All <em>Components</em></h2>
           <p className="reveal" data-d="1" style={{ color: 'var(--muted)', fontSize: '0.95rem', marginBottom: '2rem' }}>Order individual components to build or repair your antenna.</p>
 
@@ -154,11 +174,10 @@ export default function Products() {
             ))}
           </div>
 
-          {/* DESKTOP SPARES (100% Original structure with neat inline photo block added) */}
+          {/* DESKTOP SPARES */}
           <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
             {filteredSpares.map((p, i) => (
               <div key={p.id} className="spare-card reveal" data-d={String(i % 2)}>
-                {/* Clean inline photo container */}
                 <div style={{ width: '64px', height: '64px', borderRadius: '8px', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(0,0,0,0.04)' }}>
                   <img 
                     src={`/spares/${p.id}.webp`} 
@@ -182,12 +201,11 @@ export default function Products() {
             ))}
           </div>
 
-          {/* MOBILE SPARES (With inline photo header matrix alignment) */}
+          {/* MOBILE SPARES */}
           <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {filteredSpares.map((p) => (
               <div key={p.id} className="spare-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem', padding: '1.25rem 1rem' }}>
                 <div style={{ display: 'flex', gap: '1rem', width: '100%', alignItems: 'center' }}>
-                  {/* Photo row layout block */}
                   <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border-light)' }}>
                     <img 
                       src={`/spares/${p.id}.webp`} 
