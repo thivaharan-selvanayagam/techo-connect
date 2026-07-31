@@ -158,7 +158,7 @@ export default function Home() {
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>Compatible With</span>
-            {['Dialog 4G', 'Mobitel 4G', 'SLT 4G', 'Hutch 4G'].map(c => (
+            {['4G LTE', '4G LTE+', '5G'].map(c => (
               <div key={c} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.9rem', color: 'var(--ink)' }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--green)' }} />
                 {c}
@@ -359,7 +359,7 @@ export default function Home() {
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
                         <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
-                        <span style={{ color: 'var(--slate)' }}>Carriers: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>Dialog, Mobitel, SLT, Hutch</strong></span>
+                        <span style={{ color: 'var(--slate)' }}>Support with: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>4G LTE, 4G LTE+</strong></span>
                       </div>
                     </div>
                   </div>
