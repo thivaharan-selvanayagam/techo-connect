@@ -17,6 +17,40 @@ export default function Home() {
 
   const featuredSpares = spareProducts.slice(0, 4)
 
+  // ─────────────────────────────────────────────────────────────
+  // 🌟 EDITABLE FEATURES CHECKLISTS (EDIT INDIVIDUAL ITEMS HERE)
+  // ─────────────────────────────────────────────────────────────
+
+  // 1. YAGI PRO FEATURES
+  const yagiProFeatures = [
+    { label: 'Frame', value: 'Ultratek Aluminium' },
+    { label: 'Frequency', value: '700 - 2700 MHz' },
+    { label: 'Connector', value: 'Gold Plated Universal SMA' },
+    { label: 'Support with', value: '4G LTE, 4G LTE+' },
+    { label: 'Suitable for', value: 'House, Office' },
+    
+  ]
+
+  // 2. YAGI ELITE FEATURES
+  const yagiEliteFeatures = [
+    { label: 'Frame', value: 'Swisstek Branded Aluminium' },
+    { label: 'Frequency', value: '700 - 2700 MHz' },
+    { label: 'Connector', value: 'Gold Plated Universal SMA' },
+    { label: 'Support with', value: '4G LTE, 4G LTE+' },
+    { label: 'Suitable for', value: 'House, Office, Zoom Class' },
+  ]
+
+  // 3. YAGI ULTRA FEATURES
+  const yagiUltraFeatures = [
+    { label: 'Frame', value: 'Swisstek Branded Aluminium' },
+    { label: 'Frequency', value: '700 - 2700 MHz' },
+    { label: 'Connector', value: 'Gold Plated Universal SMA' },
+    { label: 'Support with', value: '4G LTE, 4G LTE+, 5G' },
+    { label: 'Suitable for', value: 'Office, Industries' },
+  ]
+
+  // ─────────────────────────────────────────────────────────────
+
   const whyUs = [
     { icon: '🇱🇰', title: 'Local Engineering', desc: 'Every antenna is tested on Sri Lankan carrier frequencies — Dialog, Mobitel, SLT, Hutch — to ensure perfect sync.' },
     { icon: '🏭', title: 'Swisstek Aluminium', desc: 'Crafted exclusively using premium Swisstek branded aluminium bars for long-lasting structural strength.' },
@@ -229,6 +263,11 @@ export default function Home() {
                 }
               }
 
+              // 🌟 SELECT INDIVIDUAL FEATURE LIST FOR THIS SPECIFIC PRODUCT
+              let currentFeatures = yagiProFeatures
+              if (product.id === 'yagi-elite') currentFeatures = yagiEliteFeatures
+              if (product.id === 'yagi-ultra') currentFeatures = yagiUltraFeatures
+
               return (
                 <div 
                   key={product.id} 
@@ -294,7 +333,7 @@ export default function Home() {
                       {product.tagline}
                     </p>
 
-                    {/* 🌟 ENLARGED PRODUCT PREVIEW WINDOW (Height 190px, minimal padding) */}
+                    {/* Product Preview Window */}
                     <div style={{ 
                       textAlign: 'center', 
                       margin: '1.25rem 0', 
@@ -343,24 +382,16 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Modern Clean Features Checklist */}
+                    {/* 🌟 DYNAMICALLY RENDERED SEPARATE FEATURES CHECKLIST */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.75rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
-                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
-                        <span style={{ color: 'var(--slate)' }}>Frame: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>Swisstek Branded Aluminium</strong></span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
-                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
-                        <span style={{ color: 'var(--slate)' }}>Frequency: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>700 - 2700 MHz (4G LTE)</strong></span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
-                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
-                        <span style={{ color: 'var(--slate)' }}>Connector: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>Gold Plated Universal SMA</strong></span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
-                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
-                        <span style={{ color: 'var(--slate)' }}>Support with: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>4G LTE, 4G LTE+</strong></span>
-                      </div>
+                      {currentFeatures.map((feat, fIdx) => (
+                        <div key={fIdx} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(10,173,110,0.12)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>✓</div>
+                          <span style={{ color: 'var(--slate)' }}>
+                            {feat.label}: <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>{feat.value}</strong>
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
