@@ -175,7 +175,7 @@ export default function AdminDispatchPage() {
                   <div>👤 <strong>Customer:</strong> {activeOrder.customer_name}</div>
                   <div>📍 <strong>City/District:</strong> {activeOrder.customer_district}</div>
                   <div>🏠 <strong>Address:</strong> {activeOrder.customer_address}</div>
-                  <div style={{ marginTop: '0.25rem' }}>📞 Contact: {activeOrder.customer_phone1}</div>
+                  <div style={{ marginTop: '0.25rem' }}>📞 Contact: {activeOrder.customer_phone1},{activeOrder.customer_phone2}</div>
                 </div>
                 <button 
                   onClick={() => { setActiveOrder(null); setOrderQuery(''); setStickerQuery(''); setTimeout(() => orderInputRef.current.focus(), 50); }}
