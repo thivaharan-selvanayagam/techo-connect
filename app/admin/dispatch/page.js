@@ -57,7 +57,7 @@ export default function AdminDispatchPage() {
     }
   }
 
-  // ── 🌟 DYNAMIC NET COD & SETTLEMENT CALCULATIONS ──
+  // ── 🌟 DYNAMIC NET COD CALCULATIONS (STRICTLY ROUNDED WHOLE INTEGER) ──
   const grandTotal = activeOrder ? (parseFloat(activeOrder.grand_total || activeOrder.total_amount) || 0) : 0
   
   const advancePaid = activeOrder ? (
@@ -66,7 +66,8 @@ export default function AdminDispatchPage() {
       : (activeOrder.payment_status === 'paid' || activeOrder.is_fully_paid ? grandTotal : 500)
   ) : 0
 
-  const netCodAmount = Math.max(0, grandTotal - advancePaid)
+  // Math.round ensures Fardar receives an integer (e.g., 5800 instead of 5800.0)
+  const netCodAmount = Math.round(Math.max(0, grandTotal - advancePaid))
 
   const handleRegisterSticker = async (e) => {
     e.preventDefault()
@@ -93,7 +94,7 @@ export default function AdminDispatchPage() {
       const result = await res.json()
 
       if (!res.ok) {
-        throw new Error(result.error || 'Fardar gateway registration failed')
+        throw new Error(result.error || result.message || 'Fardar gateway registration failed')
       }
 
       toast.success(`Success! Waybill ${sticker} linked to Order #${activeOrder.order_number} with COD: ${formatLKR(netCodAmount)}`, { id: integrationToast })
@@ -155,7 +156,7 @@ export default function AdminDispatchPage() {
                   <span style={{ color: 'var(--slate)', fontStyle: 'italic', fontSize: '0.85rem' }}>Gross: {formatLKR(grandTotal)}</span>
                 </div>
                 
-                {/* ── FINANCIAL AUDIT MATRIX BREAKDOWN ── */}
+                {/* FINANCIAL AUDIT MATRIX PREVIEW BREAKDOWN */}
                 <div style={{ background: 'var(--bg)', padding: '0.85rem 1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px dashed var(--border-light)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
                     <span style={{ color: 'var(--slate)' }}>Gross Order Value:</span>
