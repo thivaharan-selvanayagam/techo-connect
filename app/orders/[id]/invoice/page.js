@@ -1,10 +1,33 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase' 
 import { formatLKR } from '../../../../lib/utils'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+
+// ── CLIENT-SIDE SCANNABLE BARCODE COMPONENT ──
+function OrderBarcode({ value }) {
+  const svgRef = useRef(null)
+
+  useEffect(() => {
+    if (svgRef.current && value) {
+      import('jsbarcode').then((JsBarcode) => {
+        JsBarcode.default(svgRef.current, value, {
+          format: 'CODE128',
+          width: 1.5,
+          height: 38,
+          displayValue: false, // Clean barcode without text underneath
+          margin: 0,
+          background: 'transparent',
+          lineColor: '#000000'
+        })
+      }).catch(err => console.error('Barcode generation error:', err))
+    }
+  }, [value])
+
+  return <svg ref={svgRef}></svg>
+}
 
 export default function InvoicePage() {
   const params = useParams()
@@ -55,9 +78,11 @@ export default function InvoicePage() {
       const element = document.getElementById('invoice-capture-area')
       const html2pdf = (await import('html2pdf.js')).default
 
+      const cleanNum = String(order.order_number || '').replace(/^#/, '')
+
       const options = {
         margin:       [10, 15, 10, 15], 
-        filename:     `TechoConnect_Invoice_${order.order_number}.pdf`,
+        filename:     `TechoConnect_Invoice_${cleanNum}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, logging: false },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -74,9 +99,10 @@ export default function InvoicePage() {
   }
 
   const handleShare = async () => {
+    const cleanNum = String(order?.order_number || '').replace(/^#/, '')
     const shareData = {
-      title: `Techo Connect Invoice ${order?.order_number}`,
-      text: `Hi! Here is my invoice for order ${order?.order_number}.`,
+      title: `Techo Connect Invoice ${cleanNum}`,
+      text: `Hi! Here is my invoice for order ${cleanNum}.`,
       url: window.location.href,
     }
     if (navigator.share) await navigator.share(shareData)
@@ -93,20 +119,31 @@ export default function InvoicePage() {
     </div>
   )
 
+  // ── SANITIZE ORDER NUMBER (REMOVE `#` PREFIX) ──
+  const cleanOrderNumber = String(order.order_number || order.id || '').replace(/^#/, '')
+
   const isCOD = order.payment_method === 'cod'
 
   const hasYagiWarranty = order.items.some(item => 
     item.name?.toLowerCase().includes('yagi pro') || 
-    item.name?.toLowerCase().includes('yagi elite')
+    item.name?.toLowerCase().includes('yagi elite') ||
+    item.name?.toLowerCase().includes('yagi ultra')
   )
 
   const purchaseDate = new Date(order.created_at).toLocaleDateString()
 
-  // ── BULLETPROOF PROMO CODE DETECTION FALLBACK ──
-  // If discount columns are empty, dynamically subtract grand_total from item totals to find the gap
-  const calculatedDeduction = Math.max(0, (order.product_total + order.delivery_charge) - order.grand_total)
-  const promoDiscount = order.discount_applied || order.discount || calculatedDeduction
+  // ── FINANCIAL CALCULATION MATRIX ──
+  const productTotal = parseFloat(order.product_total || 0)
+  const deliveryCharge = parseFloat(order.delivery_charge || 0)
+  const grossInvoiceTotal = productTotal + deliveryCharge
+  
+  // PROMO CODE DETECTION FALLBACK
+  const calculatedDeduction = Math.max(0, grossInvoiceTotal - parseFloat(order.grand_total || 0))
+  const promoDiscount = parseFloat(order.discount_applied || order.discount || calculatedDeduction || 0)
   const promoCode = order.promo_code || (promoDiscount > 0 ? "PROMO" : null)
+
+  const depositPaid = parseFloat(order.deposit_amount || order.advance_paid || 500)
+  const balanceDue = Math.max(0, parseFloat(order.grand_total || 0) - depositPaid)
 
   return (
     <div className="invoice-page-bg">
@@ -131,12 +168,12 @@ export default function InvoicePage() {
         <div className="invoice-container" id="invoice-capture-area">
           <div className="invoice-paper card">
             
-            {/* HEADER LAYER WITH REPAIRED OVERLAP CONTROLS */}
+            {/* HEADER LAYER WITH BARCODE AND NO '#' SYMBOL */}
             <div className="invoice-header">
               <div className="header-left">
                 <div className="nav__logo" style={{ marginBottom: '0.5rem' }}>
                   <div className="nav__logo-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4.93 19.07a10 10 0 0 1 0-14.14M7.76 16.24a6 6 0 0 1 0-8.48M10 12a2 2 0 1 0 4 0 2 2 0 1 0-4 0M16.24 7.76a6 6 0 0 1 0 8.48M19.07 4.93a10 10 0 0 1 0 14.14M12 12l-4.5 9M13 15l2.5 6"/></svg>
                   </div>
                   <div>
                     <div className="nav__logo-name">TECHO<span style={{color:'var(--green)'}}>CONNECT</span></div>
@@ -151,9 +188,19 @@ export default function InvoicePage() {
               </div>
               <div className="header-right">
                 <div className="inv-label">Official Invoice</div>
-                <h1 className="invoice-no">#{order.order_number}</h1>
-                <div className={`badge ${isCOD ? 'badge-orange' : 'badge-green'}`} style={{ marginTop: '0.4rem' }}>
-                  {isCOD ? 'Deposit Confirmed' : 'Fully Paid'}
+                
+                {/* Clean Order Number Without '#' */}
+                <h1 className="invoice-no">{cleanOrderNumber}</h1>
+                
+                {/* Scannable Barcode Container */}
+                <div style={{ background: '#F8FAFC', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-light)', display: 'inline-block', margin: '0.4rem 0' }}>
+                  <OrderBarcode value={cleanOrderNumber} />
+                </div>
+
+                <div>
+                  <span className={`badge ${isCOD ? 'badge-orange' : 'badge-green'}`}>
+                    {isCOD ? 'Deposit Confirmed' : 'Fully Paid'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -195,7 +242,7 @@ export default function InvoicePage() {
                 <tr>
                   <td style={{ color: 'var(--muted)' }}>Standard Island-wide Courier Shipping ({order.customer_district})</td>
                   <td style={{ textAlign: 'center' }}>1</td>
-                  <td style={{ textAlign: 'right' }}>{formatLKR(order.delivery_charge)}</td>
+                  <td style={{ textAlign: 'right' }}>{formatLKR(deliveryCharge)}</td>
                 </tr>
               </tbody>
             </table>
@@ -216,8 +263,16 @@ export default function InvoicePage() {
                 {isCOD ? (
                   <>
                     <div className="summary-row">
-                      <span>Subtotal Invoice</span>
-                      <span>{formatLKR(order.product_total + order.delivery_charge)}</span>
+                      <span>Products Subtotal</span>
+                      <span>{formatLKR(productTotal)}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span>Delivery Fee</span>
+                      <span>{formatLKR(deliveryCharge)}</span>
+                    </div>
+                    <div className="summary-row" style={{ fontWeight: 700, borderTop: '1px solid var(--border-light)', paddingTop: '0.3rem' }}>
+                      <span>Gross Order Value</span>
+                      <span>{formatLKR(grossInvoiceTotal)}</span>
                     </div>
                     {promoDiscount > 0 && (
                       <div className="summary-row" style={{ color: '#0D9B6A', fontWeight: 600 }}>
@@ -226,20 +281,24 @@ export default function InvoicePage() {
                       </div>
                     )}
                     <div className="summary-row" style={{ color: '#B91C1C' }}>
-                      <span>Confirmation Deposit</span>
-                      <span>-{formatLKR(order.deposit_amount || 500)}</span>
+                      <span>Less: Advance Deposit Paid</span>
+                      <span>-{formatLKR(depositPaid)}</span>
                     </div>
                     <div className="summary-row grand-total">
-                      <span>Balance Due</span>
-                      <span>{formatLKR(order.grand_total - (order.deposit_amount || 500))}</span>
+                      <span>Net Balance Due</span>
+                      <span>{formatLKR(balanceDue)}</span>
                     </div>
-                    <p className="summary-note">* Remaining balance is payable in cash directly to the courier agent upon arrival.</p>
+                    <p className="summary-note">* Remaining net balance is payable in cash directly to the courier upon arrival.</p>
                   </>
                 ) : (
                   <>
                     <div className="summary-row">
-                      <span>Subtotal Invoice</span>
-                      <span>{formatLKR(order.product_total + order.delivery_charge)}</span>
+                      <span>Products Subtotal</span>
+                      <span>{formatLKR(productTotal)}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span>Delivery Fee</span>
+                      <span>{formatLKR(deliveryCharge)}</span>
                     </div>
                     {promoDiscount > 0 && (
                       <div className="summary-row" style={{ color: '#0D9B6A', fontWeight: 600 }}>
@@ -311,7 +370,15 @@ export default function InvoicePage() {
 
             <div style={{ marginBottom: '1.25rem' }}>
               <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--light-text)' }}>Invoice Number</span>
-              <h2 style={{ fontFamily: 'var(--font-head)', fontSize: '1.3rem', color: 'var(--ink)', margin: 0 }}>#{order.order_number}</h2>
+              
+              {/* Clean Order Number Without '#' */}
+              <h2 style={{ fontFamily: 'var(--font-head)', fontSize: '1.3rem', color: 'var(--ink)', margin: 0 }}>{cleanOrderNumber}</h2>
+              
+              {/* Mobile Barcode Render */}
+              <div style={{ background: '#F8FAFC', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-light)', display: 'inline-block', margin: '0.3rem 0 0.1rem' }}>
+                <OrderBarcode value={cleanOrderNumber} />
+              </div>
+
               <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.15rem' }}>Date: {purchaseDate}</div>
             </div>
 
@@ -342,7 +409,7 @@ export default function InvoicePage() {
                 ))}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)' }}>
                   <span>Courier Shipping</span>
-                  <span>{formatLKR(order.delivery_charge)}</span>
+                  <span>{formatLKR(deliveryCharge)}</span>
                 </div>
               </div>
             </div>
@@ -361,7 +428,7 @@ export default function InvoicePage() {
                 {isCOD ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.875rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--slate)' }}>
-                      <span>Invoice Subtotal:</span><span>{formatLKR(order.product_total + order.delivery_charge)}</span>
+                      <span>Gross Order Value:</span><span>{formatLKR(grossInvoiceTotal)}</span>
                     </div>
                     {promoDiscount > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0D9B6A', fontWeight: 600 }}>
@@ -369,17 +436,17 @@ export default function InvoicePage() {
                       </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B91C1C' }}>
-                      <span>COD Deposit Paid:</span><span>-{formatLKR(order.deposit_amount || 500)}</span>
+                      <span>Deposit Paid:</span><span>-{formatLKR(depositPaid)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', color: 'var(--green)', borderTop: '1px solid var(--border-light)', paddingTop: '0.4rem', marginTop: '0.2rem' }}>
-                      <span>Balance Due:</span><span>{formatLKR(order.grand_total - (order.deposit_amount || 500))}</span>
+                      <span>Net Balance Due:</span><span>{formatLKR(balanceDue)}</span>
                     </div>
                     <p style={{ fontSize: '0.72rem', color: 'var(--muted)', fontStyle: 'italic', marginTop: '0.2rem', textAlign: 'right' }}>* Collectible in cash upon courier arrival.</p>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--slate)', fontSize: '0.875rem' }}>
-                      <span>Invoice Subtotal:</span><span>{formatLKR(order.product_total + order.delivery_charge)}</span>
+                      <span>Gross Order Value:</span><span>{formatLKR(grossInvoiceTotal)}</span>
                     </div>
                     {promoDiscount > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0D9B6A', fontWeight: 600, fontSize: '0.875rem' }}>
@@ -450,7 +517,7 @@ export default function InvoicePage() {
         .invoice-no { 
           font-family: var(--font-head); 
           font-weight: 800; 
-          font-size: 1.4rem; 
+          font-size: 1.5rem; 
           color: var(--ink); 
           margin: 0.15rem 0 0; 
           line-height: 1.2; 
