@@ -57,25 +57,17 @@ export default function AdminDispatchPage() {
     }
   }
 
-  // ── 🌟 DYNAMIC NET COD CALCULATIONS (STRICTLY ROUNDED WHOLE INTEGER) ──
-  const grandTotal = activeOrder ? (parseFloat(activeOrder.grand_total || activeOrder.total_amount) || 0) : 0
-  
-  const advancePaid = activeOrder ? (
-    activeOrder.advance_paid !== undefined && activeOrder.advance_paid !== null 
-      ? parseFloat(activeOrder.advance_paid) 
-      : (activeOrder.payment_status === 'paid' || activeOrder.is_fully_paid ? grandTotal : 500)
-  ) : 0
-
-  // Math.round ensures Fardar receives an integer (e.g., 5800 instead of 5800.0)
-  const netCodAmount = Math.round(Math.max(0, grandTotal - advancePaid))
-
   const handleRegisterSticker = async (e) => {
     e.preventDefault()
     const sticker = stickerQuery.trim().toUpperCase()
     if (!sticker || !activeOrder) return
 
     setSubmitting(true)
-    const integrationToast = toast.loading('Syncing Net COD parameters with Fardar Express...')
+    const integrationToast = toast.loading('Syncing sticker parameters with Fardar Express...')
+
+    // ── 🌟 COD ADVANCE DEDUCTION STRATEGY CALCULATION ──
+    const originalTotal = parseFloat(activeOrder.grand_total) || 0
+    const adjustedCodAmount = Math.max(0, originalTotal - 500)
 
     try {
       const res = await fetch('/api/courier/book-existing', {
@@ -85,19 +77,17 @@ export default function AdminDispatchPage() {
           orderNumber: activeOrder.order_number, 
           order_number: activeOrder.order_number, 
           stickerNumber: sticker,
-          grossTotal: grandTotal,
-          advancePaid: advancePaid,
-          codAmount: netCodAmount
+          codAmount: adjustedCodAmount 
         })
       })
 
       const result = await res.json()
 
       if (!res.ok) {
-        throw new Error(result.error || result.message || 'Fardar gateway registration failed')
+        throw new Error(result.error || 'Fardar gateway registration failed')
       }
 
-      toast.success(`Success! Waybill ${sticker} linked to Order #${activeOrder.order_number} with COD: ${formatLKR(netCodAmount)}`, { id: integrationToast })
+      toast.success(`Success! Waybill ${sticker} linked to Order #${activeOrder.order_number} with COD: ${formatLKR(adjustedCodAmount)}`, { id: integrationToast })
       
       setActiveOrder(null)
       setOrderQuery('')
@@ -153,22 +143,22 @@ export default function AdminDispatchPage() {
               <div style={{ background: '#FFF', borderRadius: 12, border: '2px solid var(--green)', padding: '1.5rem', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-light)', paddingBottom: '0.75rem', marginBottom: '0.75rem' }}>
                   <span style={{ fontWeight: 700, color: 'var(--ink)' }}>Active Order: #{activeOrder.order_number}</span>
-                  <span style={{ color: 'var(--slate)', fontStyle: 'italic', fontSize: '0.85rem' }}>Gross: {formatLKR(grandTotal)}</span>
+                  <span style={{ color: 'var(--slate)', fontStyle: 'italic', fontSize: '0.85rem' }}>Initial: {formatLKR(activeOrder.grand_total)}</span>
                 </div>
                 
-                {/* FINANCIAL AUDIT MATRIX PREVIEW BREAKDOWN */}
-                <div style={{ background: 'var(--bg)', padding: '0.85rem 1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px dashed var(--border-light)' }}>
+                {/* UI FINANCIAL AUDIT MATRIX PREVIEW BREAKDOWN */}
+                <div style={{ background: 'var(--bg)', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px dashed var(--border-light)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
                     <span style={{ color: 'var(--slate)' }}>Gross Order Value:</span>
-                    <span style={{ fontWeight: 600 }}>{formatLKR(grandTotal)}</span>
+                    <span style={{ fontWeight: 600 }}>{formatLKR(activeOrder.grand_total)}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#EF4444', marginBottom: '0.4rem', borderBottom: '1px solid var(--border-light)', paddingBottom: '0.35rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#EF4444', marginBottom: '0.4rem', borderBottom: '1px solid var(--border-light)', paddingBottom: '0.25rem' }}>
                     <span>Advance Payment Paid:</span>
-                    <span style={{ fontWeight: 600 }}>- {formatLKR(advancePaid)}</span>
+                    <span style={{ fontWeight: 600 }}>- LKR 500.00</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: 'var(--green)', fontWeight: 800, paddingTop: '0.2rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: 'var(--green)', fontWeight: 700 }}>
                     <span>Net Collectible COD:</span>
-                    <span>{formatLKR(netCodAmount)}</span>
+                    <span>{formatLKR(Math.max(0, (parseFloat(activeOrder.grand_total) || 0) - 500))}</span>
                   </div>
                 </div>
 
