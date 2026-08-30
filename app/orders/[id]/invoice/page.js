@@ -211,7 +211,7 @@ export default function InvoicePage() {
                 <p style={{ fontSize: '1.05rem', margin: '0.1rem 0' }}><strong>{order.customer_name}</strong></p>
                 <p>{order.customer_address}</p>
                 <p>{order.customer_district}, Sri Lanka</p>
-                <p>{order.customer_phone1}</p>
+                <p>{order.customer_phone1},{order.customer_phone2}</p>
               </div>
               <div className="info-col" style={{ textAlign: 'right' }}>
                 <span className="small-label">Order Reference</span>
