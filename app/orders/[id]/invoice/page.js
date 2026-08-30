@@ -285,7 +285,7 @@ export default function InvoicePage() {
                       <span>-{formatLKR(depositPaid)}</span>
                     </div>
                     <div className="summary-row grand-total">
-                      <span>Net Balance Due</span>
+                      <span>Balance Due</span>
                       <span>{formatLKR(balanceDue)}</span>
                     </div>
                     <p className="summary-note">* Remaining net balance is payable in cash directly to the courier upon arrival.</p>
@@ -358,8 +358,8 @@ export default function InvoicePage() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--surface)', paddingBottom: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <div className="nav__logo-icon" style={{ width: '28px', height: '28px', borderRadius: '6px' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <div className="nav__logo-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4.93 19.07a10 10 0 0 1 0-14.14M7.76 16.24a6 6 0 0 1 0-8.48M10 12a2 2 0 1 0 4 0 2 2 0 1 0-4 0M16.24 7.76a6 6 0 0 1 0 8.48M19.07 4.93a10 10 0 0 1 0 14.14M12 12l-4.5 9M13 15l2.5 6"/></svg>
                 </div>
                 <strong style={{ fontFamily: 'var(--font-head)', fontSize: '0.9rem', color: 'var(--ink)' }}>TECHO CONNECT</strong>
               </div>
@@ -386,7 +386,7 @@ export default function InvoicePage() {
               <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.25rem' }}>Billed To</span>
               <div style={{ fontWeight: 700, color: 'var(--ink)' }}>{order.customer_name}</div>
               <div style={{ color: 'var(--slate)', marginTop: '0.15rem', lineHeight: 1.4 }}>{order.customer_address}, {order.customer_district}</div>
-              <div style={{ color: 'var(--muted)', marginTop: '0.15rem' }}>{order.customer_phone1}</div>
+              <div style={{ color: 'var(--muted)', marginTop: '0.15rem' }}>{order.customer_phone1},{order.customer_phone2}</div>
             </div>
 
             <div style={{ fontSize: '0.85rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--surface)', paddingBottom: '0.75rem' }}>
@@ -439,7 +439,7 @@ export default function InvoicePage() {
                       <span>Deposit Paid:</span><span>-{formatLKR(depositPaid)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', color: 'var(--green)', borderTop: '1px solid var(--border-light)', paddingTop: '0.4rem', marginTop: '0.2rem' }}>
-                      <span>Net Balance Due:</span><span>{formatLKR(balanceDue)}</span>
+                      <span>Balance Due:</span><span>{formatLKR(balanceDue)}</span>
                     </div>
                     <p style={{ fontSize: '0.72rem', color: 'var(--muted)', fontStyle: 'italic', marginTop: '0.2rem', textAlign: 'right' }}>* Collectible in cash upon courier arrival.</p>
                   </div>
