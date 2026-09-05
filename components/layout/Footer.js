@@ -8,14 +8,12 @@ export default function Footer() {
       <div className="container">
         <div className="footer__grid">
           <div className="footer__brand">
-            <Link href="/" className="nav__logo" style={{ display: 'inline-flex' }}>
-              <div className="nav__logo-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                  <path d="M2 17l10 5 10-5"/>
-                  <path d="M2 12l10 5 10-5"/>
-                </svg>
-              </div>
+            <Link href="/" className="nav__logo" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem' }}>
+              <img 
+                src="/icon.png" 
+                alt="Techo Connect Icon" 
+                style={{ height: '32px', width: 'auto', objectFit: 'contain' }} 
+              />
               <div>
                 <div className="nav__logo-name" style={{ color: 'white' }}>TECHO CONNECT</div>
                 <div className="nav__logo-sub">Signal Hardware</div>
