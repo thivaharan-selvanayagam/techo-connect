@@ -5,19 +5,46 @@ import Footer from '../../components/layout/Footer'
 import WAFloat from '../../components/ui/WAFloat'
 import { useReveal } from '../../components/ui/useReveal'
 import { WA_LINK, WA_COMMUNITY, FB_PAGE } from '../../lib/utils'
+import toast from 'react-hot-toast'
 
 export default function Contact() {
   useReveal()
   const [form, setForm] = useState({ name: '', email: '', phone: '', type: 'general', message: '' })
+  const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name || !form.phone) return
-    const label = form.type === 'wholesale' ? '🏷️ WHOLESALE INQUIRY' : form.type === 'warranty' ? '🔧 WARRANTY CLAIM' : '📨 General Inquiry'
-    const msg = `${label}\n\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\n\nMessage: ${form.message}`
-    window.open(`${WA_LINK}${encodeURIComponent(msg)}`, '_blank')
-    setSubmitted(true)
+    
+    setLoading(true)
+    const toastId = toast.loading('Sending your message...')
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) throw new Error(data.error || 'Failed to send message')
+
+      toast.success('Message sent successfully!', { id: toastId })
+      setSubmitted(true)
+    } catch (err) {
+      console.error(err)
+      toast.error('Email gateway busy. Redirecting to WhatsApp fallback...', { id: toastId })
+      
+      // Fallback: Open WhatsApp directly if API email fails
+      const label = form.type === 'wholesale' ? '🏷️ WHOLESALE INQUIRY' : form.type === 'warranty' ? '🔧 WARRANTY CLAIM' : '📨 General Inquiry'
+      const msg = `${label}\n\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\n\nMessage: ${form.message}`
+      window.open(`${WA_LINK}${encodeURIComponent(msg)}`, '_blank')
+      setSubmitted(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -29,7 +56,7 @@ export default function Contact() {
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <div className="page-hero__label">Techo Connect / Contact</div>
           <h1 className="page-hero__title">We're Here<br /><em>to Help.</em></h1>
-          <p className="page-hero__desc">Reach us via WhatsApp, email, or the form below. Our technical team responds fast.</p>
+          <p className="page-hero__desc">Reach us via email, WhatsApp, or the form below. Our technical team responds fast.</p>
         </div>
       </section>
 
@@ -131,13 +158,13 @@ export default function Contact() {
                   <div style={{ textAlign: 'center', padding: '2rem 0' }}>
                     <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>✅</div>
                     <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.3rem', color: 'var(--ink)', marginBottom: '0.5rem' }}>Message Sent!</div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: 1.7 }}>Your message has been sent to our WhatsApp. We'll respond shortly during working hours.</p>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: 1.7 }}>Your message has been delivered to our team. We will respond shortly via email or phone.</p>
                     <button onClick={() => setSubmitted(false)} className="btn btn-outline" style={{ marginTop: '1.5rem' }}>Send Another Message</button>
                   </div>
                 ) : (
                   <>
-                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.3rem', color: 'var(--ink)', marginBottom: '0.4rem' }}>Send a Message</div>
-                    <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '1.75rem' }}>We'll respond via WhatsApp during working hours.</p>
+                    <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.3rem', color: 'var(--ink)', marginBottom: '0.4rem' }}>Send a Direct Message</div>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '1.75rem' }}>Fill in your details below and our team will get back to you shortly.</p>
                     <form onSubmit={handleSubmit}>
                       <div className="form-row">
                         <div className="form-group">
@@ -167,8 +194,8 @@ export default function Contact() {
                         <label>Message</label>
                         <textarea className="form-control" placeholder="How can we help you?" value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ minHeight: 100 }} />
                       </div>
-                      <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                        Send via WhatsApp
+                      <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                        {loading ? 'Sending Message...' : 'Send Message'}
                         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
                       </button>
                     </form>
