@@ -60,7 +60,7 @@ export default function About() {
               <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 20, padding: '2.5rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                   {[
-                    { val: '2', suffix: '+', lbl: 'Antenna Models' },
+                    { val: '3', suffix: '', lbl: 'Antenna Models' },
                     { val: '25', suffix: '', lbl: 'Districts Served' },
                     { val: '4', suffix: '', lbl: 'Carrier Networks' },
                     { val: '12', suffix: 'mo', lbl: 'Service Warranty' },
@@ -105,7 +105,7 @@ export default function About() {
               <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, padding: '1.25rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   {[
-                    { val: '2', suffix: '+', lbl: 'Antenna Models' },
+                    { val: '3', suffix: '', lbl: 'Antenna Models' },
                     { val: '25', suffix: '', lbl: 'Districts Served' },
                     { val: '4', suffix: '', lbl: 'Carrier Networks' },
                     { val: '6', suffix: 'mo', lbl: 'Service Warranty' },
