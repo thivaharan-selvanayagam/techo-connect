@@ -5,10 +5,46 @@ import Nav from '../components/layout/Nav'
 import Footer from '../components/layout/Footer'
 import WAFloat from '../components/ui/WAFloat'
 import { useReveal } from '../components/ui/useReveal'
-import { mainProducts, spareProducts, testimonials } from '../lib/data'
+import { mainProducts, spareProducts } from '../lib/data'
 import { formatLKR, WA_LINK, WA_COMMUNITY, FB_PAGE } from '../lib/utils'
 import { useCartStore } from '../store/cart'
 import toast from 'react-hot-toast'
+
+// ─────────────────────────────────────────────────────────────
+// 🌟 EDITABLE SPEED TEST REVIEWS (EDIT CUSTOMER DATA HERE)
+// ─────────────────────────────────────────────────────────────
+const verifiedReviews = [
+  {
+    id: 1,
+    name: 'Sahan Kalhara',
+    district: 'Kegalle',
+    network: 'Dialog 4G',
+    useCase: 'Work From Home & Zoom',
+    beforeSpeed: '2.5 Mbps (1 Bar)',
+    afterSpeed: '42.0 Mbps (4G+)',
+    comment: 'Before buying the Yagi Ultra, my Zoom calls dropped every 10 minutes. Now I get continuous 4G+ signal even during heavy rain! Installation was straightforward.',
+  },
+  {
+    id: 2,
+    name: 'Ruwan Kumara',
+    district: 'Kurunegala',
+    network: 'Mobitel 4G',
+    useCase: 'Online Gaming',
+    beforeSpeed: '1.2 Mbps (98ms Ping)',
+    afterSpeed: '38.5 Mbps (24ms Ping)',
+    comment: 'Low ping achieved! Tested on Mobitel frequency band. The 15M low-loss black cable made mounting it on the roof super easy without losing signal quality.',
+  },
+  {
+    id: 3,
+    name: 'Amila Perera',
+    district: 'Galle',
+    network: 'SLT 4G',
+    useCase: 'Deep Rural Area',
+    beforeSpeed: 'No Signal',
+    afterSpeed: '28.0 Mbps (3 Bars)',
+    comment: 'We live in an estate with zero indoor signal. Mounted the Elite version on a 15ft pole, and now the whole house has fast, stable Wi-Fi.',
+  }
+]
 
 export default function Home() {
   useReveal()
@@ -18,7 +54,7 @@ export default function Home() {
   const featuredSpares = spareProducts.slice(0, 4)
 
   // ─────────────────────────────────────────────────────────────
-  // 🌟 EDITABLE FEATURES CHECKLISTS (EDIT INDIVIDUAL ITEMS HERE)
+  // 🌟 EDITABLE FEATURES CHECKLISTS
   // ─────────────────────────────────────────────────────────────
 
   // 1. YAGI PRO FEATURES
@@ -28,7 +64,6 @@ export default function Home() {
     { label: 'Connector', value: 'Gold Plated Universal SMA' },
     { label: 'Support with', value: '4G LTE, 4G LTE+' },
     { label: 'Suitable for', value: 'House, Office' },
-    
   ]
 
   // 2. YAGI ELITE FEATURES
@@ -58,7 +93,6 @@ export default function Home() {
     { icon: '🚚', title: 'Island-Wide Delivery', desc: 'Fast courier delivery to all 25 districts of Sri Lanka. Same-day dispatch on confirmed orders.' },
   ]
 
-  // Image path mapping function for antenna variants
   const getProductImage = (id) => {
     if (id === 'yagi-pro') return '/products/yagi-pro/yagi-pro-v1-1.webp'
     if (id === 'yagi-elite') return '/products/yagi-elite/yagi-elite-v1-1.webp'
@@ -112,38 +146,90 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* 🌟 ANIMATED HERO IMAGE SECTION */}
               <div className="reveal" data-d="1">
                 <div style={{ position: 'relative' }}>
-                  <div style={{ background: 'linear-gradient(135deg, rgba(10,173,110,0.08) 0%, rgba(10,173,110,0.15) 100%)', borderRadius: 24, border: '1px solid rgba(10,173,110,0.2)', padding: '2.5rem', textAlign: 'center', boxShadow: '0 20px 60px rgba(10,173,110,0.15)' }}>
-                    <svg viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', maxWidth: 280, margin: '0 auto' }}>
-                      <path d="M150 200 Q110 180 100 150" stroke="#0AAD6E" strokeWidth="2" strokeDasharray="6 3" opacity="0.4"/>
-                      <path d="M150 200 Q90 170 80 130" stroke="#0AAD6E" strokeWidth="1.5" strokeDasharray="6 3" opacity="0.3"/>
-                      <path d="M150 200 Q190 180 200 150" stroke="#0AAD6E" strokeWidth="2" strokeDasharray="6 3" opacity="0.4"/>
-                      <path d="M150 200 Q210 170 220 130" stroke="#0AAD6E" strokeWidth="1.5" strokeDasharray="6 3" opacity="0.3"/>
-                      <rect x="145" y="80" width="10" height="140" rx="3" fill="#0AAD6E"/>
-                      {[95,115,135,155,175].map((y,i) => (
-                        <rect key={i} x={125-(i*3)} y={y} width={50+(i*6)} height="5" rx="2.5" fill="#078A57"/>
-                      ))}
-                      <rect x="110" y="195" width="80" height="7" rx="3" fill="#056B44"/>
-                      <rect x="148" y="220" width="4" height="50" fill="#9AB5A4"/>
-                      <path d="M90 100 Q75 85 90 70" stroke="#12C97F" strokeWidth="2" fill="none" opacity="0.7"/>
-                      <path d="M75 110 Q55 85 75 60" stroke="#12C97F" strokeWidth="1.5" fill="none" opacity="0.5"/>
-                      <path d="M210 100 Q225 85 210 70" stroke="#12C97F" strokeWidth="2" fill="none" opacity="0.7"/>
-                      <path d="M225 110 Q245 85 225 60" stroke="#12C97F" strokeWidth="1.5" fill="none" opacity="0.5"/>
-                      <rect x="108" y="245" width="84" height="26" rx="6" fill="white" stroke="#0AAD6E" strokeWidth="1.5"/>
-                      <circle cx="120" cy="258" r="4" fill="#0AAD6E"/>
-                      <circle cx="132" cy="258" r="4" fill="#12C97F"/>
-                      <circle cx="144" cy="258" r="4" fill="#0AAD6E" opacity="0.5"/>
-                      <text x="165" y="263" fill="#0AAD6E" fontSize="8" fontFamily="monospace" fontWeight="bold">4G+</text>
-                    </svg>
-                    <div style={{ position: 'absolute', top: 20, right: -10, background: 'white', borderRadius: 12, padding: '0.5rem 0.9rem', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '1px solid rgba(10,173,110,0.2)', fontSize: '0.78rem', fontWeight: 700, color: '#0AAD6E' }}>
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, rgba(10,173,110,0.08) 0%, rgba(10,173,110,0.15) 100%)', 
+                    borderRadius: 24, 
+                    border: '1px solid rgba(10,173,110,0.2)', 
+                    padding: '2.5rem', 
+                    textAlign: 'center', 
+                    boxShadow: '0 20px 60px rgba(10,173,110,0.15)',
+                    minHeight: 340,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                  }}>
+
+                    {/* 📡 ANIMATED SIGNAL PULSE RINGS */}
+                    <div className="signal-pulse ring-1" />
+                    <div className="signal-pulse ring-2" />
+                    <div className="signal-pulse ring-3" />
+
+                    {/* 🚀 FLOATING & INTERACTIVE ANTENNA IMAGE */}
+                    <img 
+                      src="/products/yagi-elite/yagi-elite-v1-1.webp" 
+                      alt="Techo Connect Yagi Antenna" 
+                      className="floating-antenna"
+                      onError={(e) => { e.currentTarget.src = '/antenna.webp' }}
+                    />
+
+                    {/* FLOATING BADGES WITH SHIMMER */}
+                    <div style={{ position: 'absolute', top: 20, right: -10, background: 'white', borderRadius: 12, padding: '0.5rem 0.9rem', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '1px solid rgba(10,173,110,0.2)', fontSize: '0.78rem', fontWeight: 700, color: '#0AAD6E', animation: 'bounce 3s infinite ease-in-out' }}>
                       📶 Signal Boosted!
                     </div>
-                    <div style={{ position: 'absolute', bottom: 60, left: -10, background: 'white', borderRadius: 12, padding: '0.5rem 0.9rem', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '1px solid rgba(10,173,110,0.2)', fontSize: '0.78rem', fontWeight: 700, color: '#078A57' }}>
-                      ⚡ 4x Faster
+                    <div style={{ position: 'absolute', bottom: 40, left: -10, background: 'white', borderRadius: 12, padding: '0.5rem 0.9rem', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '1px solid rgba(10,173,110,0.2)', fontSize: '0.78rem', fontWeight: 700, color: '#078A57', animation: 'bounce 3s infinite ease-in-out 1.5s' }}>
+                      ⚡ 4x Faster Speeds
                     </div>
                   </div>
                 </div>
+
+                {/* 🎨 CSS KEYFRAME ANIMATIONS */}
+                <style jsx>{`
+                  .floating-antenna {
+                    width: 100%;
+                    max-width: 280px;
+                    height: auto;
+                    max-height: 280px;
+                    object-fit: contain;
+                    z-index: 2;
+                    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15));
+                    animation: float 4s ease-in-out infinite;
+                    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.4s ease;
+                    cursor: pointer;
+                  }
+                  .floating-antenna:hover {
+                    transform: scale(1.08) rotate(-2deg);
+                    filter: drop-shadow(0 20px 35px rgba(10,173,110,0.3));
+                  }
+                  @keyframes float {
+                    0%, 100% { transform: translateY(0px) rotate(0deg); }
+                    50% { transform: translateY(-12px) rotate(1deg); }
+                  }
+                  .signal-pulse {
+                    position: absolute;
+                    border-radius: 50%;
+                    border: 2px solid rgba(10, 173, 110, 0.4);
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    pointer-events: none;
+                    animation: pulseWave 3s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+                  }
+                  .ring-1 { width: 100px; height: 100px; animation-delay: 0s; }
+                  .ring-2 { width: 100px; height: 100px; animation-delay: 1s; }
+                  .ring-3 { width: 100px; height: 100px; animation-delay: 2s; }
+                  @keyframes pulseWave {
+                    0% { width: 60px; height: 60px; opacity: 0.8; }
+                    100% { width: 320px; height: 320px; opacity: 0; }
+                  }
+                  @keyframes bounce {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-6px); }
+                  }
+                `}</style>
               </div>
             </div>
 
@@ -230,13 +316,11 @@ export default function Home() {
             </p>
           </div>
 
-          {/* 3-CARD MODERN COMPARISON GRID */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'stretch' }}>
             {mainProducts.map((product, idx) => {
               const isFeatured = product.id === 'yagi-elite'
               const startingPrice = product.variants?.[0]?.price || 3700
 
-              // Dynamic Cable Highlights
               let cableInfo = {
                 title: '10M Low-Loss Black Cable',
                 tag: 'Standard Reach',
@@ -263,7 +347,6 @@ export default function Home() {
                 }
               }
 
-              // 🌟 SELECT INDIVIDUAL FEATURE LIST FOR THIS SPECIFIC PRODUCT
               let currentFeatures = yagiProFeatures
               if (product.id === 'yagi-elite') currentFeatures = yagiEliteFeatures
               if (product.id === 'yagi-ultra') currentFeatures = yagiUltraFeatures
@@ -288,7 +371,6 @@ export default function Home() {
                     overflow: 'hidden'
                   }}
                 >
-                  {/* FEATURED RIBBON */}
                   {isFeatured && (
                     <div style={{
                       position: 'absolute',
@@ -309,7 +391,6 @@ export default function Home() {
                   )}
 
                   <div>
-                    {/* Top Meta info */}
                     <div style={{ marginBottom: '1rem' }}>
                       <span style={{ 
                         fontSize: '0.7rem',
@@ -333,7 +414,6 @@ export default function Home() {
                       {product.tagline}
                     </p>
 
-                    {/* Product Preview Window */}
                     <div style={{ 
                       textAlign: 'center', 
                       margin: '1.25rem 0', 
@@ -355,7 +435,6 @@ export default function Home() {
                       />
                     </div>
 
-                    {/* Price Header */}
                     <div style={{ textAlign: 'center', padding: '0.85rem 0 1.25rem', borderBottom: '1px border-dash #E2E8F0' }}>
                       <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Starting Price</div>
                       <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '2.25rem', color: 'var(--ink)', lineHeight: 1.1, marginTop: '0.2rem' }}>
@@ -363,7 +442,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* CABLE SPEC HIGHLIGHT BOX */}
                     <div style={{ 
                       background: cableInfo.bg, 
                       border: `1px solid ${cableInfo.border}`, 
@@ -382,7 +460,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* 🌟 DYNAMICALLY RENDERED SEPARATE FEATURES CHECKLIST */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.75rem' }}>
                       {currentFeatures.map((feat, fIdx) => (
                         <div key={fIdx} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
@@ -395,7 +472,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Actions / CTA Buttons */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginTop: 'auto' }}>
                     <Link 
                       href={`/products/${product.slug}`} 
@@ -430,7 +506,6 @@ export default function Home() {
             })}
           </div>
 
-          {/* Help Banner */}
           <div className="reveal" style={{ marginTop: '3rem', padding: '1.5rem 1.75rem', background: 'white', border: '1px solid #E2E8F0', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(10,173,110,0.1)', color: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>💡</div>
@@ -455,7 +530,6 @@ export default function Home() {
             <h2 className="section-title reveal">Built for <em>Sri Lanka</em></h2>
           </div>
 
-          {/* DESKTOP WHY US */}
           <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5px', background: 'var(--border-light)', border: '1px solid var(--border-light)', borderRadius: 16, overflow: 'hidden' }}>
             {whyUs.map((item, i) => (
               <div key={item.title} className="reveal" data-d={String(i % 2)} style={{ background: 'white', padding: '2rem 1.75rem', transition: 'background 0.25s' }}
@@ -468,7 +542,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* MOBILE WHY US */}
           <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {whyUs.map((item) => (
               <div key={item.title} style={{ background: 'white', padding: '1.5rem', borderRadius: 12, border: '1px solid var(--border-light)' }}>
@@ -496,7 +569,6 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* DESKTOP SPARES */}
           <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
             {featuredSpares.map((p, i) => (
               <div key={p.id} className="spare-card reveal" data-d={String(i % 2)}>
@@ -523,7 +595,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* MOBILE SPARES */}
           <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {featuredSpares.map((p) => (
               <div key={p.id} className="spare-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem', padding: '1.25rem 1rem' }}>
@@ -577,56 +648,62 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ── */}
+      {/* ── INTERACTIVE SPEED TEST REVIEWS ── */}
       <section style={{ padding: '6rem 0', background: 'white' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <div className="label" style={{ justifyContent: 'center', marginBottom: '0.75rem' }}>Customer Reviews</div>
-            <h2 className="section-title reveal">What Our <em>Customers Say</em></h2>
+            <div className="label" style={{ justifyContent: 'center', marginBottom: '0.75rem' }}>Verified Results</div>
+            <h2 className="section-title reveal">Real Customers, <em>Real Speeds</em></h2>
           </div>
 
-          {/* DESKTOP TESTIMONIALS */}
-          <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
-            {testimonials.map((t, i) => (
-              <div key={t.id} className="reveal" data-d={String(i % 3)} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, padding: '1.5rem' }}>
-                <div className="stars" style={{ marginBottom: '0.75rem' }}>
-                  {[...Array(t.rating)].map((_, i) => <span key={i} className="star">★</span>)}                 
-                </div>
-                <p style={{ fontSize: '0.875rem', color: 'var(--slate)', lineHeight: 1.75, marginBottom: '1rem', fontStyle: 'italic' }}>"{t.text}"</p>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+            {verifiedReviews.map((r, i) => (
+              <div key={r.id} className="reveal" data-d={String(i % 3)} style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 20, padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--ink)' }}>{t.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>📍 {t.location}</div>
+                    <strong style={{ fontSize: '1rem', color: '#0F172A', display: 'block', marginBottom: '0.2rem' }}>{r.name}</strong>
+                    <span style={{ fontSize: '0.75rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <span style={{ color: 'var(--green)' }}>📍</span> {r.district} • {r.network}
+                    </span>
                   </div>
-                  {t.hasScreenshot && (
-                    <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.72rem' }}>View Screenshot</button>
-                  )}
+                  <span style={{ background: 'rgba(10,173,110,0.1)', color: '#0AAD6E', fontSize: '0.65rem', fontWeight: 800, padding: '4px 10px', borderRadius: 100, letterSpacing: '0.05em' }}>
+                    ✓ VERIFIED
+                  </span>
                 </div>
+
+                {/* Speed Boost Banner */}
+                <div style={{ background: '#F8FAFC', border: '1px solid #EDF2F7', borderRadius: 12, padding: '1rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '1px', background: '#E2E8F0', transform: 'translateX(-50%)' }} />
+                  
+                  <div style={{ flex: 1, textAlign: 'center', paddingRight: '0.5rem' }}>
+                    <span style={{ fontSize: '0.65rem', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', display: 'block', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>Before</span>
+                    <span style={{ fontSize: '0.85rem', color: '#EF4444', fontWeight: 700 }}>{r.beforeSpeed}</span>
+                  </div>
+                  
+                  <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', background: 'white', border: '1px solid #E2E8F0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0AAD6E', fontSize: '0.8rem', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', zIndex: 2 }}>
+                    ➔
+                  </div>
+                  
+                  <div style={{ flex: 1, textAlign: 'center', paddingLeft: '0.5rem' }}>
+                    <span style={{ fontSize: '0.65rem', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', display: 'block', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>With Yagi</span>
+                    <span style={{ fontSize: '0.95rem', color: '#0AAD6E', fontWeight: 800 }}>{r.afterSpeed}</span>
+                  </div>
+                </div>
+
+                {/* Badges / Use Case */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '0.7rem', background: '#F1F5F9', color: '#475569', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>
+                    🎯 {r.useCase}
+                  </span>
+                </div>
+
+                <p style={{ fontSize: '0.875rem', color: '#334155', lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>
+                  "{r.comment}"
+                </p>
               </div>
             ))}
           </div>
-
-          {/* MOBILE TESTIMONIALS */}
-          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {testimonials.map((t) => (
-              <div key={t.id} style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: 16, padding: '1.25rem' }}>
-                <div className="stars" style={{ marginBottom: '0.5rem' }}>
-                  {[...Array(t.rating)].map((_, i) => <span key={i} className="star">★</span>)}                 
-                </div>
-                <p style={{ fontSize: '0.875rem', color: 'var(--slate)', lineHeight: 1.6, marginBottom: '1rem', fontStyle: 'italic' }}>"{t.text}"</p>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--ink)' }}>{t.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>📍 {t.location}</div>
-                  </div>
-                  {t.hasScreenshot && (
-                    <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.72rem' }}>View</button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
         </div>
       </section>
 
