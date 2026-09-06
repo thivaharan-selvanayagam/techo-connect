@@ -76,28 +76,17 @@ export default function Nav() {
               </Link>
             ))}
 
-            {/* MORE DROPDOWN */}
-            <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-              <button
-                type="button"
-                onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
-                className={isDropdownActive ? 'active' : ''}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  margin: 0,
-                  fontFamily: 'inherit',
-                  fontSize: 'inherit',
-                  fontWeight: 'inherit',
-                  letterSpacing: 'inherit',
-                  textTransform: 'inherit',
-                  color: 'inherit',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
+            {/* MORE DROPDOWN CONTAINER */}
+            <div ref={dropdownRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              {/* Trigger configured as an anchor <a> to inherit your exact CSS link styles */}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setMoreDropdownOpen(!moreDropdownOpen)
                 }}
+                className={isDropdownActive ? 'active' : ''}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer' }}
               >
                 More
                 <svg
@@ -114,20 +103,20 @@ export default function Nav() {
                 >
                   <path d="M6 9l6 6 6-6" />
                 </svg>
-              </button>
+              </a>
 
               {/* DROPDOWN MENU */}
               {moreDropdownOpen && (
                 <div
                   style={{
                     position: 'absolute',
-                    top: 'calc(100% + 0.8rem)',
+                    top: 'calc(100% + 15px)',
                     right: 0,
-                    minWidth: '180px',
+                    minWidth: '200px',
                     backgroundColor: 'white',
                     border: '1px solid var(--border-light, #e2e8f0)',
                     borderRadius: '12px',
-                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                     padding: '0.5rem 0',
                     zIndex: 100,
                     display: 'flex',
@@ -138,15 +127,13 @@ export default function Nav() {
                     <Link
                       key={l.href}
                       href={l.href}
+                      className={pathname === l.href ? 'active' : ''}
+                      onClick={() => setMoreDropdownOpen(false)}
                       style={{
-                        padding: '0.65rem 1.25rem',
-                        fontFamily: 'inherit',
-                        fontSize: '0.85rem',
-                        fontWeight: pathname === l.href ? '700' : '500',
-                        color: pathname === l.href ? 'var(--green, #0AAD6E)' : 'var(--ink, #0f172a)',
-                        backgroundColor: pathname === l.href ? 'rgba(10,173,110,0.06)' : 'transparent',
-                        textDecoration: 'none',
-                        transition: 'background-color 0.15s ease, color 0.15s ease',
+                        padding: '0.75rem 1.25rem',
+                        margin: 0, // Resets margin in case your global CSS adds margins to nav links
+                        display: 'block',
+                        width: '100%',
                       }}
                     >
                       {l.label}
