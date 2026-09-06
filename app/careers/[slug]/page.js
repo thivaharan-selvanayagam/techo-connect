@@ -8,6 +8,7 @@ import WAFloat from '../../../components/ui/WAFloat'
 import { useReveal } from '../../../components/ui/useReveal'
 import { jobOpenings } from '../../../lib/data'
 import { WA_LINK } from '../../../lib/utils'
+import toast from 'react-hot-toast'
 
 export default function JobDetail({ params }) {
   const { slug } = params 
@@ -16,14 +17,52 @@ export default function JobDetail({ params }) {
 
   useReveal()
   const [form, setForm] = useState({ name: '', phone: '', email: '', location: '', experience: '', message: '' })
+  const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const handleApply = (e) => {
+  const handleApply = async (e) => {
     e.preventDefault()
     if (!form.name || !form.phone || !form.location) return
-    const msg = `Hi Techo Connect! I want to apply for the ${job.title} position.\n\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nPreferred Location: ${form.location}\nExperience: ${form.experience}\n\n${form.message}`
-    window.open(`${WA_LINK}${encodeURIComponent(msg)}`, '_blank')
-    setSubmitted(true)
+
+    setLoading(true)
+    const toastId = toast.loading('Sending your application...')
+
+    const applicationMessage = `Position: ${job.title}
+Preferred Location: ${form.location}
+Years of Experience: ${form.experience || 'Not specified'}
+
+Additional Notes:
+${form.message || 'No additional message provided.'}`
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          type: `Job Application: ${job.title}`,
+          message: applicationMessage,
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to submit application')
+
+      toast.success('Application submitted successfully!', { id: toastId })
+      setSubmitted(true)
+    } catch (err) {
+      console.error(err)
+      toast.error('Email gateway busy. Redirecting to WhatsApp fallback...', { id: toastId })
+
+      // Fallback: Open WhatsApp directly if API email fails
+      const msg = `Hi Techo Connect! I want to apply for the ${job.title} position.\n\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nPreferred Location: ${form.location}\nExperience: ${form.experience}\n\n${form.message}`
+      window.open(`${WA_LINK}${encodeURIComponent(msg)}`, '_blank')
+      setSubmitted(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Shared Form Render Function to prevent code duplication between Desktop/Mobile views
@@ -33,9 +72,9 @@ export default function JobDetail({ params }) {
         <div style={{ textAlign: 'center', padding: '2rem 0' }}>
           <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>✅</div>
           <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink)', marginBottom: '0.5rem' }}>Application Sent!</div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>Your details were sent to our WhatsApp. We'll get back to you shortly.</p>
+          <p style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.6 }}>Your details have been submitted successfully. Our team will review your application and reach out shortly.</p>
         </div>
-        <Link href="/careers" className="btn btn-outline" style={{ width: '100%' }}>← Back to Careers</Link>
+        <Link href="/careers" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>← Back to Careers</Link>
       </div>
     ) : (
       <form onSubmit={handleApply}>
@@ -71,9 +110,9 @@ export default function JobDetail({ params }) {
           <label>Additional Message</label>
           <textarea className="form-control" placeholder="Tell us about your experience..." value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} style={{ minHeight: 80 }} />
         </div>
-        <button type="submit" className="btn btn-wa" style={{ width: '100%' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
-          Submit via WhatsApp
+        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+          {loading ? 'Sending Application...' : 'Submit Application'}
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
         </button>
       </form>
     )
@@ -106,7 +145,7 @@ export default function JobDetail({ params }) {
       <section style={{ padding: '4rem 0', background: 'var(--bg)' }}>
         <div className="container">
           
-          {/* DESKTOP VIEW (100% Original styling grid parameters preserved) */}
+          {/* DESKTOP VIEW */}
           <div className="desktop-only" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem', alignItems: 'start' }}>
             {/* Left Column */}
             <div>
@@ -170,13 +209,13 @@ export default function JobDetail({ params }) {
             <div style={{ position: 'sticky', top: '6rem' }}>
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border-light)', padding: '2rem', boxShadow: 'var(--shadow-md)' }}>
                 <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.2rem', color: 'var(--ink)', marginBottom: '0.4rem' }}>Apply Now</h3>
-                <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '1.5rem' }}>Fill in your details and we'll connect you via WhatsApp.</p>
+                <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '1.5rem' }}>Fill in your details to apply directly for this role.</p>
                 {renderFormContent()}
               </div>
             </div>
           </div>
 
-          {/* MOBILE VIEW (Fluid vertical stack alternative layout configuration) */}
+          {/* MOBILE VIEW */}
           <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* About Block */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.5rem' }}>
@@ -184,10 +223,10 @@ export default function JobDetail({ params }) {
               <p style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: 1.65 }}>{job.description}</p>
             </div>
 
-            {/* Application Sidebar Form Stacked Inline on Mobile layout viewports */}
+            {/* Application Form */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', padding: '1.5rem', boxShadow: 'var(--shadow-md)' }}>
               <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.15rem', color: 'var(--ink)', marginBottom: '0.35rem' }}>Apply Now</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '1.25rem' }}>Fill in your details and we'll connect you via WhatsApp.</p>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '1.25rem' }}>Fill in your details to apply directly for this role.</p>
               {renderFormContent()}
             </div>
 
